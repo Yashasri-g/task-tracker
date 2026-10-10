@@ -115,10 +115,19 @@ export function getDaysDiff(dateStr1: string, dateStr2: string): number {
   }
 }
 
-export function getGreeting(): string {
-  if (typeof window === 'undefined') return 'Good morning';
+export type TimeOfDay = 'morning' | 'afternoon' | 'evening';
+
+export function getTimeOfDay(): TimeOfDay {
+  if (typeof window === 'undefined') return 'morning';
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
+  if (hour >= 4 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 17) return 'afternoon';
+  return 'evening';
+}
+
+export function getGreeting(): string {
+  const tod = getTimeOfDay();
+  if (tod === 'morning') return 'Good morning';
+  if (tod === 'afternoon') return 'Good afternoon';
   return 'Good evening';
 }

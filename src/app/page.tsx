@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { selectMyDayStats, selectMyDayTasks, selectOverdueTasks, selectWaitingForTasks } from '@/lib/selectors';
-import { getGreeting, getTodayString } from '@/lib/utils/date';
+import { getGreeting, getTodayString, getTimeOfDay, type TimeOfDay } from '@/lib/utils/date';
 import { TaskItem } from '@/components/tasks/TaskItem';
 import { Card, CardHeader, CardTitle } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { format } from 'date-fns';
 import {
   Sun,
+  Sunset,
   CheckCircle2,
   AlertTriangle,
   Clock,
@@ -28,11 +29,13 @@ export default function MyDayPage() {
 
   const [formattedTodayDate, setFormattedTodayDate] = useState('Today');
   const [greeting, setGreeting] = useState('Good morning');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning');
   const [todayStr, setTodayStr] = useState('');
 
   useEffect(() => {
     setFormattedTodayDate(format(new Date(), 'EEEE, MMMM d, yyyy'));
     setGreeting(getGreeting());
+    setTimeOfDay(getTimeOfDay());
     setTodayStr(getTodayString());
   }, []);
 
@@ -55,7 +58,9 @@ export default function MyDayPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-indigo-50/90 via-white to-slate-50 text-slate-900 rounded-2xl border border-indigo-100/80 shadow-2xs relative overflow-hidden">
         <div className="space-y-1 z-10">
           <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 uppercase tracking-wider">
-            <Sun className="w-4 h-4 text-amber-500" />
+            {timeOfDay === 'morning' && <Sun className="w-4 h-4 text-amber-500 animate-pulse" />}
+            {timeOfDay === 'afternoon' && <Sun className="w-4 h-4 text-amber-600" />}
+            {timeOfDay === 'evening' && <Sunset className="w-4 h-4 text-amber-500" />}
             <span>{formattedTodayDate}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
