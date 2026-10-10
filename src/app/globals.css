@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-hover-border: #cbd5e1;
+
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --color-indigo-primary: #4f46e5;
+  --color-indigo-hover: #4338ca;
+  --color-indigo-light: #eef2ff;
+
+  --color-emerald-success: #10b981;
+  --color-emerald-light: #ecfdf5;
+
+  --color-rose-danger: #ef4444;
+  --color-rose-light: #fef2f2;
+
+  --color-amber-warning: #f59e0b;
+  --color-amber-light: #fffbeb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Senior Executive Component Design Tokens in globals.css */
+
+.executive-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.executive-card:hover {
+  border-color: var(--card-hover-border);
+}
+
+.executive-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  color: #ffffff;
+}
+
+/* Custom Scrollbar Styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Focus Ring Reset */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
