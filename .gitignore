@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# electron & desktop installers
+/dist/
+*.dmg
+*.exe
+*.blockmap
+*.zip
+builder-debug.yml
+builder-effective-config.yaml
+latest*.yml
+

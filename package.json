@@ -1,12 +1,47 @@
 {
   "name": "task_tracker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "dist:mac": "npm run build && electron-builder --mac dmg",
+    "dist:win": "npm run build && electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.commandcenter.tasktracker",
+    "productName": "Command Center",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      ".next/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -24,9 +59,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.6",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "get-port": "^7.2.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.5.1"
   }
 }
