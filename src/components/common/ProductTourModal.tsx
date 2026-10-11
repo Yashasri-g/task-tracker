@@ -39,9 +39,9 @@ const TOUR_STEPS = [
   },
   {
     step: 3,
-    title: 'Task & Inbox Management',
-    subtitle: 'Rapid Capture',
-    description: 'Press shortcut "C" or Cmd+K anytime to capture new tasks into your Inbox. Organize deadlines by Project, Upcoming, or Waiting-For status.',
+    title: 'Task & Commitment Hub',
+    subtitle: 'Rapid Capture & Priorities',
+    description: 'Press shortcut "C" or "N" anytime to capture new tasks with quick date presets. Organize deadlines by Project, Priority, or Waiting-For status.',
     icon: CheckSquare,
     badge: '3 of 4',
   },

@@ -13,7 +13,7 @@ export function selectMyDayStats(tasks: Task[], followUps: FollowUp[]): MyDaySta
   const today = getTodayString();
 
   const dueTodayTasks = tasks.filter(
-    (t) => !t.inInbox && t.dueDate === today
+    (t) => t.dueDate === today
   );
 
   const completedTodayTasks = tasks.filter((t) => {
@@ -21,7 +21,7 @@ export function selectMyDayStats(tasks: Task[], followUps: FollowUp[]): MyDaySta
     return t.completedAt.startsWith(today);
   });
 
-  const overdueTasks = tasks.filter((t) => !t.inInbox && isOverdue(t.dueDate, t.status));
+  const overdueTasks = tasks.filter((t) => isOverdue(t.dueDate, t.status));
 
   const pendingFollowUps = followUps.filter((f) => f.status === 'pending' && f.nextFollowUpDate <= today);
 
@@ -40,7 +40,7 @@ export function selectMyDayStats(tasks: Task[], followUps: FollowUp[]): MyDaySta
 export function selectMyDayTasks(tasks: Task[]): Task[] {
   const today = getTodayString();
   return tasks
-    .filter((t) => !t.inInbox && t.status !== 'completed' && (t.dueDate === today || t.priority === 'urgent'))
+    .filter((t) => t.status !== 'completed' && (t.dueDate === today || t.priority === 'urgent'))
     .sort((a, b) => {
       const priorityWeight: Record<string, number> = { urgent: 4, high: 3, medium: 2, low: 1, none: 0 };
       const weightDiff = (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
@@ -52,16 +52,16 @@ export function selectMyDayTasks(tasks: Task[]): Task[] {
 
 export function selectOverdueTasks(tasks: Task[]): Task[] {
   return tasks
-    .filter((t) => !t.inInbox && isOverdue(t.dueDate, t.status))
+    .filter((t) => isOverdue(t.dueDate, t.status))
     .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
 }
 
 export function selectInboxTasks(tasks: Task[]): Task[] {
-  return tasks.filter((t) => t.inInbox && t.status !== 'completed');
+  return [];
 }
 
 export function selectWaitingForTasks(tasks: Task[]): Task[] {
-  return tasks.filter((t) => !t.inInbox && (t.status === 'waiting' || t.status === 'blocked' || !!t.waitingForDetails));
+  return tasks.filter((t) => t.status === 'waiting' || t.status === 'blocked' || !!t.waitingForDetails);
 }
 
 export interface SearchResult {

@@ -4,10 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { selectOverdueTasks, selectInboxTasks } from '@/lib/selectors';
+import { selectOverdueTasks } from '@/lib/selectors';
 import {
   Sun,
-  Inbox,
   CheckSquare,
   FolderKanban,
   FileText,
@@ -24,11 +23,9 @@ export function Sidebar() {
   const { tasks, isSidebarOpen, closeSidebar, openQuickAdd } = useApp();
 
   const overdueCount = selectOverdueTasks(tasks).length;
-  const inboxCount = selectInboxTasks(tasks).length;
 
   const coreNav = [
     { label: 'My Day', href: '/', icon: Sun },
-    { label: 'Inbox', href: '/inbox', icon: Inbox, count: inboxCount, countVariant: 'indigo' },
     { label: 'Tasks', href: '/tasks', icon: CheckSquare, count: overdueCount > 0 ? overdueCount : undefined, countVariant: 'rose' },
     { label: 'Projects', href: '/projects', icon: FolderKanban },
     { label: 'Notes & Docs', href: '/notes', icon: FileText },

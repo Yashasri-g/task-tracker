@@ -17,7 +17,7 @@ export default function TasksPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'waiting' | 'completed'>('all');
   const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
 
-  const activeTasks = tasks.filter((t) => !t.inInbox);
+  const activeTasks = tasks;
 
   if (isLoading) {
     return (

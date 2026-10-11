@@ -22,7 +22,6 @@ export function QuickAddModal() {
   const [notes, setNotes] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>('none');
-  const [inInbox, setInInbox] = useState(false);
 
   const [subtaskInputs, setSubtaskInputs] = useState<string[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -44,7 +43,6 @@ export function QuickAddModal() {
       setRecurringPattern('none');
       setSubtaskInputs([]);
       setNewSubtaskTitle('');
-      setInInbox(quickAddDefaults?.inInbox ?? false);
       setShowMoreFields(false);
 
       setTimeout(() => {
@@ -91,7 +89,7 @@ export function QuickAddModal() {
       dependencies: [],
       tags: [],
       recurringPattern,
-      inInbox,
+      inInbox: false,
     });
 
     closeQuickAdd();
@@ -283,25 +281,13 @@ export function QuickAddModal() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inInbox}
-              onChange={(e) => setInInbox(e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500"
-            />
-            Save to Inbox for later review
-          </label>
-
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={closeQuickAdd}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              Save Task
-            </Button>
-          </div>
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <Button type="button" variant="outline" size="sm" onClick={closeQuickAdd}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            Save Task
+          </Button>
         </div>
       </form>
     </Modal>

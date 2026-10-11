@@ -12,7 +12,6 @@ export function Header() {
 
   const getBreadcrumbTitle = (path: string) => {
     if (path === '/') return 'My Day';
-    if (path === '/inbox') return 'Inbox';
     if (path === '/tasks') return 'Task Management Hub';
     if (path === '/projects') return 'Projects';
     if (path.startsWith('/projects/')) return 'Project Overview';

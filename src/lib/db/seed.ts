@@ -194,7 +194,7 @@ export async function loadDemoData(): Promise<void> {
       links: [],
       checklist: [],
       dependencies: [],
-      inInbox: true, // Needs triage!
+      inInbox: false,
     },
     {
       id: 'task_7',
