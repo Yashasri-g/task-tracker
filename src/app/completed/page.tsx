@@ -10,10 +10,9 @@ import { formatNiceDate, formatDateTime } from '@/lib/utils/date';
 import { CheckCircle2, Search, Download, Sparkles, Filter, Copy } from 'lucide-react';
 
 export default function CompletedPage() {
-  const { tasks, projects, showToast, isLoading } = useApp();
+  const { tasks, showToast, isLoading } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [projectFilter, setProjectFilter] = useState('all');
 
   if (isLoading) {
     return (
@@ -26,7 +25,6 @@ export default function CompletedPage() {
   const completedTasks = tasks.filter((t) => t.status === 'completed');
 
   const filteredTasks = completedTasks.filter((t) => {
-    if (projectFilter !== 'all' && t.projectId !== projectFilter) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
@@ -84,17 +82,6 @@ export default function CompletedPage() {
             className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
-
-        <select
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-          className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg"
-        >
-          <option value="all">All Projects</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
       </div>
 
       {/* List of Completed Items */}

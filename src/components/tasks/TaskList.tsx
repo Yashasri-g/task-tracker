@@ -23,12 +23,11 @@ export function TaskList({
   emptyDescription = 'You have no tasks matching this view.',
   showFilters = true,
 }: TaskListProps) {
-  const { projects, openQuickAdd } = useApp();
+  const { openQuickAdd } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  const [projectFilter, setProjectFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'created' | 'alphabetical'>('deadline');
 
   const filteredTasks = useMemo(() => {
@@ -51,7 +50,6 @@ export function TaskList({
       }
 
       if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
-      if (projectFilter !== 'all' && t.projectId !== projectFilter) return false;
 
       return true;
     }).sort((a, b) => {
@@ -69,7 +67,7 @@ export function TaskList({
       }
       return 0;
     });
-  }, [tasks, searchQuery, statusFilter, priorityFilter, projectFilter, sortBy]);
+  }, [tasks, searchQuery, statusFilter, priorityFilter, sortBy]);
 
   return (
     <div className="space-y-4">
@@ -114,19 +112,6 @@ export function TaskList({
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
-            </select>
-
-            <select
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 max-w-[140px] truncate"
-            >
-              <option value="all">All Projects</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
             </select>
 
             <div className="flex items-center gap-1 shrink-0 text-xs text-slate-500">

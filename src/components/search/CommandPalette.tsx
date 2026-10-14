@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { Modal } from '@/components/common/Modal';
 import { performGlobalSearch, type SearchResult } from '@/lib/selectors';
-import { Search, CheckSquare, FolderKanban, FileText, Users, BookOpen, Clock, ArrowRight } from 'lucide-react';
+import { Search, CheckSquare, FileText, Users, BookOpen, Clock, ArrowRight } from 'lucide-react';
 
 export function CommandPalette() {
   const router = useRouter();
@@ -13,7 +13,6 @@ export function CommandPalette() {
     isCommandPaletteOpen,
     closeCommandPalette,
     tasks,
-    projects,
     notes,
     meetings,
     journalEntries,
@@ -24,8 +23,8 @@ export function CommandPalette() {
   const [query, setQuery] = useState('');
 
   const searchResults = useMemo(() => {
-    return performGlobalSearch(query, tasks, projects, notes, meetings, journalEntries, followUps);
-  }, [query, tasks, projects, notes, meetings, journalEntries, followUps]);
+    return performGlobalSearch(query, tasks, [], notes, meetings, journalEntries, followUps);
+  }, [query, tasks, notes, meetings, journalEntries, followUps]);
 
   if (!isCommandPaletteOpen) return null;
 
@@ -41,7 +40,6 @@ export function CommandPalette() {
   const getResultIcon = (type: SearchResult['type']) => {
     switch (type) {
       case 'task': return <CheckSquare className="w-4 h-4 text-indigo-500" />;
-      case 'project': return <FolderKanban className="w-4 h-4 text-emerald-500" />;
       case 'note': return <FileText className="w-4 h-4 text-sky-500" />;
       case 'meeting': return <Users className="w-4 h-4 text-purple-500" />;
       case 'journal': return <BookOpen className="w-4 h-4 text-amber-500" />;
@@ -59,7 +57,7 @@ export function CommandPalette() {
           <input
             type="text"
             autoFocus
-            placeholder="Type to search tasks, projects, notes, meetings, journal..."
+            placeholder="Type to search tasks, notes, meetings, journal..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
@@ -70,7 +68,7 @@ export function CommandPalette() {
         <div className="max-h-[350px] overflow-y-auto space-y-1 custom-scrollbar">
           {query.trim().length === 0 ? (
             <div className="p-6 text-center text-xs text-slate-400">
-              Type a title, project name, keyword, or tag to search your entire workspace.
+              Type a title, keyword, or tag to search your entire workspace.
             </div>
           ) : searchResults.length === 0 ? (
             <div className="p-6 text-center text-xs text-slate-400">

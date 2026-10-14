@@ -15,6 +15,7 @@ import {
   Link as LinkIcon,
   Flame,
   Repeat,
+  Bell,
 } from 'lucide-react';
 
 interface TaskItemProps {
@@ -22,12 +23,11 @@ interface TaskItemProps {
   showProject?: boolean;
 }
 
-export function TaskItem({ task, showProject = true }: TaskItemProps) {
-  const { toggleTaskCompletion, openTaskDetail, projects } = useApp();
+export function TaskItem({ task }: TaskItemProps) {
+  const { toggleTaskCompletion, openTaskDetail } = useApp();
 
   const isCompleted = task.status === 'completed';
   const overdue = isOverdue(task.dueDate, task.status);
-  const project = projects.find((p) => p.id === task.projectId);
 
   const getPriorityBadgeVariant = (priority: string) => {
     switch (priority) {
@@ -95,11 +95,11 @@ export function TaskItem({ task, showProject = true }: TaskItemProps) {
 
           {/* Task Metadata Row */}
           <div className="flex items-center gap-3 mt-1.5 flex-wrap text-xs text-slate-500">
-            {/* Project Badge */}
-            {showProject && project && (
-              <span className="inline-flex items-center gap-1 font-medium text-slate-700">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: project.color || '#6366f1' }} />
-                {project.name}
+            {/* Reminder Alert Badge */}
+            {(task.reminder || task.dueTime) && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                <Bell className="w-3 h-3 text-amber-600" />
+                <span>{task.reminder?.time || task.dueTime || 'Alert'}</span>
               </span>
             )}
 

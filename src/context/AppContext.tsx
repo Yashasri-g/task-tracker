@@ -15,7 +15,13 @@ import {
 import { hasExistingData, loadDemoData, clearAllWorkspaceData } from '@/lib/db/seed';
 import type { Task, Project, Note, Meeting, JournalEntry, FollowUp, UserPreferences } from '@/types';
 import { ProductTourModal } from '@/components/common/ProductTourModal';
-import { calculateNextOccurrenceDate } from '@/lib/utils/date';
+import { calculateNextOccurrenceDate, getTodayString } from '@/lib/utils/date';
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  sendSystemNotification,
+  playNotificationChime,
+} from '@/lib/utils/notifications';
 
 export interface ToastMessage {
   id: string;
@@ -92,6 +98,10 @@ interface AppContextType {
   toasts: ToastMessage[];
   showToast: (title: string, message?: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
   removeToast: (id: string) => void;
+
+  notificationPermission: NotificationPermission | 'unsupported';
+  requestAlertPermission: () => Promise<void>;
+  triggerTestNotification: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -378,6 +388,72 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, []);
 
+  // Notification State & Management
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
+  const notifiedRemindersRef = React.useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    setNotificationPermission(getNotificationPermission());
+  }, []);
+
+  const requestAlertPermission = useCallback(async () => {
+    const granted = await requestNotificationPermission();
+    const perm = getNotificationPermission();
+    setNotificationPermission(perm);
+    if (granted) {
+      sendSystemNotification('Alerts Activated', {
+        body: 'System desktop alerts and sound chimes are now enabled.',
+      });
+      showToast('Alerts Enabled', 'System and audio notifications are active.', 'success');
+    } else {
+      showToast('Notifications Blocked', 'Please permit notifications in your browser/OS settings.', 'warning');
+    }
+  }, [showToast]);
+
+  const triggerTestNotification = useCallback(() => {
+    sendSystemNotification('Executive Notification Test', {
+      body: 'Your alerts, sound chime, and notifications are operating correctly.',
+    });
+    showToast('Alerts Active', 'Test chime played and notification triggered.', 'info');
+  }, [showToast]);
+
+  // Background reminder scheduler (checks every 25 seconds)
+  useEffect(() => {
+    const checkReminders = () => {
+      const now = new Date();
+      const todayStr = getTodayString();
+      const currentHours = String(now.getHours()).padStart(2, '0');
+      const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+      const currentTimeStr = `${currentHours}:${currentMinutes}`;
+
+      tasks.forEach((task) => {
+        if (task.status === 'completed') return;
+
+        // Check scheduled explicit reminder
+        if (task.reminder && !task.reminder.dismissed) {
+          const reminderKey = `reminder_${task.id}_${task.reminder.date}_${task.reminder.time || 'all-day'}`;
+          if (notifiedRemindersRef.current.has(reminderKey)) return;
+
+          const isDatePassedOrToday = task.reminder.date <= todayStr;
+          const isTimePassedOrNow = !task.reminder.time || task.reminder.time <= currentTimeStr;
+
+          if (isDatePassedOrToday && isTimePassedOrNow) {
+            notifiedRemindersRef.current.add(reminderKey);
+            sendSystemNotification(`🔔 Reminder: ${task.title}`, {
+              body: task.description || (task.dueTime ? `Due at ${task.dueTime}` : 'Scheduled reminder alert'),
+              tag: task.id,
+            });
+            showToast(`🔔 Reminder: ${task.title}`, task.dueTime ? `Due at ${task.dueTime}` : undefined, 'info');
+          }
+        }
+      });
+    };
+
+    checkReminders();
+    const interval = setInterval(checkReminders, 25000);
+    return () => clearInterval(interval);
+  }, [tasks, showToast]);
+
   return (
     <AppContext.Provider
       value={{
@@ -445,6 +521,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toasts,
         showToast,
         removeToast,
+
+        notificationPermission,
+        requestAlertPermission,
+        triggerTestNotification,
       }}
     >
       {children}

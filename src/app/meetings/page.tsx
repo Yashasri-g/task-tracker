@@ -11,7 +11,7 @@ import type { Meeting, MeetingActionItem } from '@/types';
 import { Users, Plus, Calendar, CheckSquare, Trash2, CheckCircle2 } from 'lucide-react';
 
 export default function MeetingsPage() {
-  const { meetings, projects, createMeeting, deleteMeeting, updateMeeting, createTask, isLoading } = useApp();
+  const { meetings, createMeeting, deleteMeeting, updateMeeting, createTask, isLoading } = useApp();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -23,7 +23,6 @@ export default function MeetingsPage() {
   const [decisions, setDecisions] = useState('');
   const [actionItemInput, setActionItemInput] = useState('');
   const [actionItems, setActionItems] = useState<MeetingActionItem[]>([]);
-  const [projectId, setProjectId] = useState('');
 
   useEffect(() => {
     setDate(getTodayString());
@@ -71,7 +70,6 @@ export default function MeetingsPage() {
       notes: notes.trim(),
       decisions: decArr,
       actionItems,
-      projectId: projectId || undefined,
     });
 
     setTitle('');
@@ -90,7 +88,6 @@ export default function MeetingsPage() {
       priority: 'high',
       taskType: 'task',
       status: 'not-started',
-      projectId: meeting.projectId,
       links: [],
       checklist: [],
       dependencies: [],

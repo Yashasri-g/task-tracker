@@ -10,12 +10,12 @@ import { ChevronDown, ChevronUp, Repeat, Plus, X } from 'lucide-react';
 import { QuickDateSelector } from '@/components/common/QuickDateSelector';
 
 export function QuickAddModal() {
-  const { isQuickAddOpen, closeQuickAdd, quickAddDefaults, createTask, projects } = useApp();
+  const { isQuickAddOpen, closeQuickAdd, quickAddDefaults, createTask } = useApp();
 
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
-  const [projectId, setProjectId] = useState<string>('');
   const [status, setStatus] = useState<TaskStatus>('not-started');
   const [taskType, setTaskType] = useState<TaskType>('task');
   const [personInvolved, setPersonInvolved] = useState('');
@@ -33,8 +33,8 @@ export function QuickAddModal() {
     if (isQuickAddOpen) {
       setTitle(quickAddDefaults?.title || '');
       setDueDate(quickAddDefaults?.dueDate || getTodayString());
+      setReminderTime(quickAddDefaults?.reminder?.time || quickAddDefaults?.dueTime || '');
       setPriority(quickAddDefaults?.priority || 'medium');
-      setProjectId(quickAddDefaults?.projectId || '');
       setStatus(quickAddDefaults?.status || 'not-started');
       setTaskType(quickAddDefaults?.taskType || 'task');
       setPersonInvolved(quickAddDefaults?.personInvolved || '');
@@ -75,11 +75,20 @@ export function QuickAddModal() {
       completed: false,
     }));
 
+    const reminder = reminderTime
+      ? {
+          date: dueDate || getTodayString(),
+          time: reminderTime,
+          dismissed: false,
+        }
+      : undefined;
+
     await createTask({
       title: title.trim(),
       dueDate: dueDate || undefined,
+      dueTime: reminderTime || undefined,
+      reminder,
       priority,
-      projectId: projectId || undefined,
       status,
       taskType,
       personInvolved: personInvolved.trim() || undefined,
@@ -136,28 +145,24 @@ export function QuickAddModal() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1">Project</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1">
+              <span>🔔 Reminder Alert</span>
+            </label>
             <div className="flex items-center gap-1">
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 truncate"
-              >
-                <option value="">(No Project / Standalone)</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              {projectId && (
+              <input
+                type="time"
+                value={reminderTime}
+                onChange={(e) => setReminderTime(e.target.value)}
+                className="w-full px-2.5 py-1 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+              />
+              {reminderTime && (
                 <button
                   type="button"
-                  onClick={() => setProjectId('')}
-                  title="Unlink Project"
-                  className="px-2 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
+                  onClick={() => setReminderTime('')}
+                  title="Clear Reminder Alert"
+                  className="px-1.5 py-1 text-[11px] text-slate-400 hover:text-rose-600 rounded border border-slate-200 hover:border-rose-200"
                 >
-                  Unlink
+                  ✕
                 </button>
               )}
             </div>

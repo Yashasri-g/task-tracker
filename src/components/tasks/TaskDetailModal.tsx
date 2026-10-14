@@ -18,7 +18,7 @@ import {
 import { QuickDateSelector } from '@/components/common/QuickDateSelector';
 
 export function TaskDetailModal() {
-  const { activeTaskId, closeTaskDetail, tasks, projects, updateTask, deleteTask, toggleTaskCompletion } = useApp();
+  const { activeTaskId, closeTaskDetail, tasks, updateTask, deleteTask, toggleTaskCompletion } = useApp();
 
   const task = tasks.find((t) => t.id === activeTaskId);
 
@@ -29,7 +29,6 @@ export function TaskDetailModal() {
   const [taskType, setTaskType] = useState<TaskType>('task');
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
-  const [projectId, setProjectId] = useState('');
   const [personInvolved, setPersonInvolved] = useState('');
   const [assignedBy, setAssignedBy] = useState('');
   const [notes, setNotes] = useState('');
@@ -53,8 +52,7 @@ export function TaskDetailModal() {
       setPriority(task.priority);
       setTaskType(task.taskType);
       setDueDate(task.dueDate || '');
-      setDueTime(task.dueTime || '');
-      setProjectId(task.projectId || '');
+      setDueTime(task.reminder?.time || task.dueTime || '');
       setPersonInvolved(task.personInvolved || '');
       setAssignedBy(task.assignedBy || '');
       setNotes(task.notes || '');
@@ -85,6 +83,14 @@ export function TaskDetailModal() {
           }
         : undefined;
 
+    const reminder = dueTime
+      ? {
+          date: dueDate || new Date().toISOString().slice(0, 10),
+          time: dueTime,
+          dismissed: false,
+        }
+      : undefined;
+
     await updateTask(task.id, {
       title: title.trim(),
       description: description.trim() || undefined,
@@ -93,7 +99,7 @@ export function TaskDetailModal() {
       taskType,
       dueDate: dueDate || undefined,
       dueTime: dueTime || undefined,
-      projectId: projectId || undefined,
+      reminder,
       personInvolved: personInvolved.trim() || undefined,
       assignedBy: assignedBy.trim() || undefined,
       notes: notes.trim() || undefined,
@@ -231,26 +237,24 @@ export function TaskDetailModal() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">Project</label>
+            <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1 flex items-center gap-1">
+              <span>🔔 Reminder Alert</span>
+            </label>
             <div className="flex items-center gap-1">
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                className="w-full px-2 py-1 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 truncate"
-              >
-                <option value="">(No Project / Standalone)</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-              {projectId && (
+              <input
+                type="time"
+                value={dueTime}
+                onChange={(e) => setDueTime(e.target.value)}
+                className="w-full px-2 py-1 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+              />
+              {dueTime && (
                 <button
                   type="button"
-                  onClick={() => setProjectId('')}
-                  title="Unlink Project"
-                  className="px-2 py-1 text-xs text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
+                  onClick={() => setDueTime('')}
+                  title="Clear Reminder Alert"
+                  className="px-1.5 py-1 text-[11px] text-slate-400 hover:text-rose-600 rounded border border-slate-200 hover:border-rose-200"
                 >
-                  Unlink
+                  ✕
                 </button>
               )}
             </div>

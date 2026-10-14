@@ -8,7 +8,6 @@ import { selectOverdueTasks } from '@/lib/selectors';
 import {
   Sun,
   CheckSquare,
-  FolderKanban,
   FileText,
   RotateCw,
   Settings,
@@ -27,7 +26,6 @@ export function Sidebar() {
   const coreNav = [
     { label: 'My Day', href: '/', icon: Sun },
     { label: 'Tasks', href: '/tasks', icon: CheckSquare, count: overdueCount > 0 ? overdueCount : undefined, countVariant: 'rose' },
-    { label: 'Projects', href: '/projects', icon: FolderKanban },
     { label: 'Notes & Docs', href: '/notes', icon: FileText },
   ];
 

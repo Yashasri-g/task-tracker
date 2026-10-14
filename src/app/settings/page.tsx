@@ -7,12 +7,30 @@ import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
 import { exportAllData, validateBackupFile, importData, getStorageStats } from '@/lib/utils/exportImport';
 import type { ExportBackup, StorageStats } from '@/types';
-import { Settings, Download, Upload, Trash2, Database, ShieldAlert, RefreshCw, HelpCircle } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Database, ShieldAlert, RefreshCw, HelpCircle, Bell, Volume2, ShieldCheck } from 'lucide-react';
+import {
+  getSavedNotificationSound,
+  setSavedNotificationSound,
+  playNotificationChime,
+  type NotificationSound,
+} from '@/lib/utils/notifications';
 
 export default function SettingsPage() {
-  const { preferences, updatePreferences, reloadDemoData, clearDatabase, showToast, isLoading, openTour } = useApp();
+  const {
+    preferences,
+    updatePreferences,
+    reloadDemoData,
+    clearDatabase,
+    showToast,
+    isLoading,
+    openTour,
+    notificationPermission,
+    requestAlertPermission,
+    triggerTestNotification,
+  } = useApp();
 
   const [stats, setStats] = useState<StorageStats | null>(null);
+  const [selectedSound, setSelectedSound] = useState<NotificationSound>('bell');
   const [importFile, setImportFile] = useState<ExportBackup | null>(null);
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -21,7 +39,24 @@ export default function SettingsPage() {
 
   useEffect(() => {
     getStorageStats().then(setStats);
+    setSelectedSound(getSavedNotificationSound());
   }, []);
+
+  const handleSelectSound = (sound: NotificationSound) => {
+    setSelectedSound(sound);
+    setSavedNotificationSound(sound);
+    playNotificationChime(sound);
+    const soundNames = {
+      'bell': 'Double Resonant Bell',
+      'desk-bell': 'Service Desk Bell',
+      'urgent-alert': 'Triple Rising Alert',
+    };
+    showToast('Sound Profile Updated', `Active sound set to: ${soundNames[sound]}.`, 'success');
+  };
+
+  const handlePlaySoundPreview = (sound: NotificationSound) => {
+    playNotificationChime(sound);
+  };
 
   if (isLoading) {
     return (
@@ -101,6 +136,139 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {/* Notifications & System Alerts Settings Card */}
+      <Card className="p-5 space-y-4">
+        <CardHeader className="pb-3 mb-0 border-b-0">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Bell className="w-4 h-4 text-indigo-600" /> System Alerts & Desktop Notifications
+          </CardTitle>
+        </CardHeader>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-900">Desktop & Audio Alerts</span>
+              <span
+                className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                  notificationPermission === 'granted'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : notificationPermission === 'denied'
+                    ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                    : 'bg-amber-100 text-amber-800 border border-amber-200'
+                }`}
+              >
+                {notificationPermission === 'granted'
+                  ? 'Active / Allowed'
+                  : notificationPermission === 'denied'
+                  ? 'Blocked in OS/Browser'
+                  : 'Action Needed'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1 max-w-lg">
+              Receive timely desktop popups and resonant bell alerts when scheduled task reminders and due commitments trigger.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {notificationPermission !== 'granted' && (
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={requestAlertPermission}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                icon={<ShieldCheck className="w-3.5 h-3.5" />}
+              >
+                Enable Notifications
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                triggerTestNotification();
+              }}
+              icon={<Volume2 className="w-3.5 h-3.5 text-indigo-600" />}
+            >
+              Ring Test Bell
+            </Button>
+          </div>
+        </div>
+
+        {/* Sound Selection Options */}
+        <div className="p-4 bg-white border border-slate-200 rounded-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-xs font-bold text-slate-900">Alert Sound & Tone</h4>
+              <p className="text-[11px] text-slate-500">Choose the acoustic sound profile that best gets your attention.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {[
+              {
+                id: 'bell' as NotificationSound,
+                name: 'Double Resonant Bell',
+                desc: 'Crisp, high-attention double ring (Ding-Ding!)',
+                badge: 'Recommended',
+              },
+              {
+                id: 'desk-bell' as NotificationSound,
+                name: 'Service Desk Bell',
+                desc: 'Bright metallic counter bell strike (Ding!)',
+                badge: 'Punchy',
+              },
+              {
+                id: 'urgent-alert' as NotificationSound,
+                name: 'Triple Rising Alert',
+                desc: 'Fast 3-note ascending alert chime',
+                badge: 'Unmissable',
+              },
+            ].map((s) => {
+              const isSelected = selectedSound === s.id;
+              return (
+                <div
+                  key={s.id}
+                  onClick={() => handleSelectSound(s.id)}
+                  className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-indigo-50/70 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                      : 'bg-slate-50/60 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">{s.name}</span>
+                      <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white text-indigo-600 border border-indigo-100">
+                        {s.badge}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-relaxed">{s.desc}</p>
+                  </div>
+
+                  <div className="pt-2 mt-2 border-t border-slate-200/60 flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-indigo-600">
+                      {isSelected ? '✓ Active Sound' : 'Select'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlaySoundPreview(s.id);
+                      }}
+                      className="p-1 hover:bg-white rounded text-slate-500 hover:text-indigo-600 transition-colors"
+                      title={`Preview ${s.name}`}
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
+
       {/* Storage Information & Backup */}
       <Card className="p-5 space-y-4">
         <CardHeader className="pb-3 mb-0 border-b-0">
@@ -116,8 +284,8 @@ export default function SettingsPage() {
               <strong className="text-sm text-slate-900">{stats.taskCount}</strong>
             </div>
             <div>
-              <span className="text-slate-500 block">Projects</span>
-              <strong className="text-sm text-slate-900">{stats.projectCount}</strong>
+              <span className="text-slate-500 block">Follow-Ups</span>
+              <strong className="text-sm text-slate-900">{stats.followUpCount}</strong>
             </div>
             <div>
               <span className="text-slate-500 block">Notes & Meetings</span>
@@ -133,7 +301,7 @@ export default function SettingsPage() {
         <div className="pt-2 border-t border-slate-100 space-y-3">
           <h4 className="text-xs font-bold text-slate-800">Data Backup & Recovery</h4>
           <p className="text-xs text-slate-500">
-            Export a full JSON backup of all tasks, projects, notes, meetings, journal entries, and follow-ups for offline safekeeping.
+            Export a full JSON backup of all tasks, notes, meetings, journal entries, and follow-ups for offline safekeeping.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
