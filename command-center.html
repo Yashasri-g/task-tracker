@@ -1,0 +1,3525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Center - Personal Work</title>
+  <style>
+    /* RESET & CORE VARIABLES - MATCHING NEXT.JS TAILWIND THEME */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --card-hover-border: #cbd5e1;
+      --sidebar-bg: #ffffff;
+      --sidebar-border: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --color-indigo-primary: #4f46e5;
+      --color-indigo-hover: #4338ca;
+      --color-indigo-light: #eef2ff;
+      --color-indigo-border: #c7d2fe;
+      --color-emerald-success: #10b981;
+      --color-emerald-light: #ecfdf5;
+      --color-emerald-border: #a7f3d0;
+      --color-rose-danger: #ef4444;
+      --color-rose-light: #fef2f2;
+      --color-rose-border: #fecdd3;
+      --color-amber-warning: #f59e0b;
+      --color-amber-light: #fffbeb;
+      --color-amber-border: #fde68a;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --radius-lg: 0.75rem;
+      /* 12px */
+      --radius-xl: 1rem;
+      /* 16px */
+      --radius-2xl: 1rem;
+      /* 16px */
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* INPUT FOCUS */
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    }
+
+    /* APP LAYOUT */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 40;
+      width: 16rem;
+      /* 256px */
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #main-content-wrapper {
+      margin-left: 16rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar {
+        transform: translateX(-100%);
+      }
+
+      #sidebar.open {
+        transform: translateX(0);
+      }
+
+      #main-content-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: 4rem;
+      /* 64px */
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    main.page-container {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      max-width: 80rem;
+      /* 1280px */
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 0 1rem;
+      }
+
+      main.page-container {
+        padding: 1rem;
+      }
+    }
+
+    /* EXECUTIVE CARDS */
+    .executive-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-2xs);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .executive-card:hover {
+      border-color: var(--card-hover-border);
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1.25;
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.5rem 0.875rem;
+    }
+
+    .btn-sm {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.625rem;
+      border-radius: 0.375rem;
+    }
+
+    .btn-primary {
+      background-color: #4f46e5;
+      color: #ffffff;
+      border: 1px solid transparent;
+      box-shadow: var(--shadow-2xs);
+    }
+
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+
+    .btn-outline {
+      background-color: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-outline:hover {
+      background-color: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: #475569;
+      border: 1px solid transparent;
+    }
+
+    .btn-ghost:hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      color: #ffffff;
+      border: 1px solid transparent;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.6875rem;
+      /* 11px */
+      font-weight: 600;
+      border-radius: 9999px;
+      padding: 0.125rem 0.5rem;
+      line-height: 1;
+    }
+
+    .badge-rose {
+      background-color: #ffe4e6;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+    }
+
+    .badge-indigo {
+      background-color: #e0e7ff;
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+    }
+
+    .badge-emerald {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-amber {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-slate {
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background-color: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 32rem;
+      /* 512px */
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-card-lg {
+      max-width: 42rem;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes reminderSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes bellPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15) rotate(15deg);
+      }
+    }
+
+    .pulse-bell {
+      animation: bellPulse 1.2s ease-in-out infinite;
+    }
+
+    /* TOAST */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-lg);
+      padding: 0.875rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 18rem;
+      max-width: 24rem;
+      animation: toastIn 0.25s ease-out;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- MOBILE BACKDROP -->
+  <div id="mobile-backdrop"
+    style="position: fixed; inset: 0; z-index: 35; background: rgba(15,23,42,0.4); display: none;"
+    onclick="closeMobileSidebar()"></div>
+
+  <!-- SIDEBAR (1:1 NEXT.JS APP SHELL) -->
+  <aside id="sidebar">
+    <div style="display: flex; flex-direction: column; height: 100%;">
+      <!-- Executive Brand Header -->
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #f1f5f9;">
+        <div style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer;" onclick="switchTab('my-day')">
+          <div
+            style="padding: 0.375rem; background-color: #4f46e5; border-radius: 0.5rem; color: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-2xs);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+            </svg>
+          </div>
+          <div>
+            <h1
+              style="font-size: 0.875rem; font-weight: 700; color: #0f172a; letter-spacing: 0.025em; line-height: 1.25;">
+              Command Center</h1>
+            <p
+              style="font-size: 0.625rem; color: #64748b; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">
+              Personal Work</p>
+          </div>
+        </div>
+        <button onclick="closeMobileSidebar()"
+          style="display: none; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;"
+          id="mobile-sidebar-close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Add CTA -->
+      <div style="padding: 0.75rem;">
+        <button onclick="openQuickAddModal()" class="btn btn-primary"
+          style="width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem; font-size: 0.875rem; border-radius: 0.5rem; background-color: #4f46e5;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Quick Add Task</span>
+          <span
+            style="margin-left: auto; font-size: 0.625rem; background-color: #4338ca; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: var(--font-mono); color: #ffffff;">C</span>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div
+        style="flex: 1; padding: 0.5rem 0.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem;">
+        <div>
+          <div
+            style="padding: 0 0.75rem; margin-bottom: 0.5rem; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+            Workspace
+          </div>
+          <nav style="display: flex; flex-direction: column; gap: 0.125rem;">
+            <a onclick="switchTab('my-day')" id="nav-my-day" class="nav-btn"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem; background-color: #eef2ff; color: #4338ca; border: 1px solid rgba(199, 210, 254, 0.8); cursor: pointer; text-decoration: none;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color: #4f46e5;">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                <span>My Day</span>
+              </div>
+            </a>
+
+            <a onclick="switchTab('tasks')" id="nav-tasks" class="nav-btn"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; color: #475569; cursor: pointer; text-decoration: none;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color: #94a3b8;">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+                <span>Tasks</span>
+              </div>
+              <span id="nav-overdue-badge" class="badge badge-rose" style="display: none;">0</span>
+            </a>
+
+            <a onclick="switchTab('notes')" id="nav-notes" class="nav-btn"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; color: #475569; cursor: pointer; text-decoration: none;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color: #94a3b8;">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <span>Notes & Docs</span>
+              </div>
+            </a>
+          </nav>
+        </div>
+
+        <div>
+          <div
+            style="padding: 0 0.75rem; margin-bottom: 0.5rem; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+            System
+          </div>
+          <nav style="display: flex; flex-direction: column; gap: 0.125rem;">
+            <a onclick="switchTab('weekly-review')" id="nav-weekly-review" class="nav-btn"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; color: #475569; cursor: pointer; text-decoration: none;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color: #94a3b8;">
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                <span>Weekly Review</span>
+              </div>
+            </a>
+
+            <a onclick="switchTab('settings')" id="nav-settings" class="nav-btn"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; color: #475569; cursor: pointer; text-decoration: none;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color: #94a3b8;">
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>Settings</span>
+              </div>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div
+        style="padding: 0.875rem; border-top: 1px solid #f1f5f9; background-color: rgba(248, 250, 252, 0.5); font-size: 0.75rem; color: #64748b;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="display: inline-flex; align-items: center; gap: 0.375rem; font-weight: 500; color: #475569;">
+            <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #10b981;"></span>
+            IndexedDB Storage
+          </span>
+          <span style="font-size: 0.625rem; font-family: var(--font-mono); color: #94a3b8;">v1.0</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div id="main-content-wrapper">
+    <!-- TOP HEADER -->
+    <header>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button onclick="toggleMobileSidebar()"
+          style="display: none; padding: 0.5rem; color: #475569; background: none; border: none; border-radius: 0.5rem; cursor: pointer;"
+          id="mobile-menu-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <h1 id="header-breadcrumb" style="font-size: 1rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em;">
+          My Day</h1>
+      </div>
+
+      <!-- Middle: Global Search Trigger -->
+      <div style="flex: 1; max-width: 28rem; margin: 0 1.5rem;" class="hidden-xs">
+        <button onclick="openCommandPalette()"
+          style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.375rem 0.875rem; font-size: 0.75rem; color: #94a3b8; background-color: rgba(241, 245, 249, 0.8); border: 1px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; box-shadow: var(--shadow-2xs);">
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Search tasks, notes, meetings...</span>
+          </span>
+          <kbd
+            style="padding: 0.125rem 0.375rem; font-family: var(--font-mono); font-size: 0.625rem; color: #64748b; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.25rem;">⌘K</kbd>
+        </button>
+      </div>
+
+      <!-- Right Actions -->
+      <div style="display: flex; align-items: center; gap: 0.625rem;">
+        <!-- Local DB Status -->
+        <div
+          style="display: flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; font-size: 0.75rem; font-weight: 600; color: #047857; background-color: #ecfdf5; border: 1px solid rgba(167, 243, 208, 0.8); border-radius: 9999px;"
+          class="hidden-xs">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="color: #059669;">
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+          </svg>
+          <span>Local Offline DB</span>
+        </div>
+
+        <!-- Alerts Bell -->
+        <div style="position: relative;">
+          <button id="alerts-bell-btn" onclick="toggleAlertsDropdown()" aria-label="View notifications"
+            style="position: relative; padding: 0.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background-color: #ffffff; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-2xs);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span id="alerts-counter"
+              style="position: absolute; top: -0.25rem; right: -0.25rem; min-width: 1.125rem; height: 1.125rem; padding: 0 0.25rem; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 700; color: #ffffff; background-color: #dc2626; border-radius: 9999px; box-shadow: 0 0 0 2px #ffffff;">0</span>
+          </button>
+
+          <!-- ALERTS DROPDOWN (1:1 NEXT.JS ALERTSDROPDOWN) -->
+          <div id="alerts-dropdown"
+            style="display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; width: 22rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: var(--shadow-xl); z-index: 50; overflow: hidden;">
+            <div
+              style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div
+                  style="padding: 0.375rem; background-color: #eef2ff; border: 1px solid #c7d2fe; border-radius: 0.5rem; color: #4f46e5; display: flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 style="font-size: 0.75rem; font-weight: 700; color: #0f172a; line-height: 1.25;">Alerts &
+                    Notifications</h3>
+                  <p id="alerts-dropdown-subtitle" style="font-size: 0.625rem; color: #64748b;">0 items require
+                    attention</p>
+                </div>
+              </div>
+              <button onclick="toggleAlertsDropdown()"
+                style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Permission banner -->
+            <div
+              style="padding: 0.625rem 1rem; background-color: #eef2ff; border-bottom: 1px solid #e0e7ff; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+              <span style="color: #4338ca; font-weight: 500;">Desktop Audio Bell</span>
+              <button onclick="ringCurrentBell()" class="btn btn-sm btn-outline"
+                style="font-size: 0.6875rem; padding: 0.25rem 0.5rem; background: #ffffff;">Test Ring</button>
+            </div>
+
+            <!-- List of items -->
+            <div id="alerts-list" style="max-height: 18rem; overflow-y: auto; padding: 0.5rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Task Button -->
+        <button onclick="openQuickAddModal()" class="btn btn-primary btn-sm"
+          style="background-color: #4f46e5; color: #ffffff;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span class="hidden-xs">Add Task</span>
+        </button>
+
+        <!-- Executive Avatar -->
+        <div
+          style="width: 2rem; height: 2rem; border-radius: 9999px; background-color: #e0e7ff; border: 1px solid #c7d2fe; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #4338ca; box-shadow: var(--shadow-2xs);"
+          class="hidden-xs">
+          EX
+        </div>
+      </div>
+    </header>
+
+    <!-- TAB 1: MY DAY (1:1 MATCH OF src/app/page.tsx) -->
+    <main id="tab-my-day" class="page-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <!-- Executive Light Header Banner -->
+      <div
+        style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; padding: 1.5rem; background: linear-gradient(to right, rgba(238, 242, 255, 0.9), #ffffff, #f8fafc); border-radius: 1rem; border: 1px solid rgba(199, 210, 254, 0.8); box-shadow: var(--shadow-2xs); position: relative; overflow: hidden;"
+        class="md-flex-row md-items-center">
+        <div style="display: flex; flex-direction: column; gap: 0.25rem; z-index: 10;">
+          <div
+            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.05em;">
+            <svg id="hero-sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <span id="hero-date-str">FRIDAY, OCTOBER 16, 2026</span>
+          </div>
+          <h2 id="hero-greeting"
+            style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; color: #0f172a;">Good afternoon.</h2>
+          <p id="hero-summary-text" style="font-size: 0.875rem; color: #475569; max-width: 36rem;">
+            You have <span id="hero-due-count" style="font-weight: 700; color: #0f172a;">0 tasks</span> due today and
+            <span id="hero-overdue-count" style="font-weight: 700; color: #e11d48;">0 overdue items</span> requiring
+            attention.
+          </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; z-index: 10; flex-shrink: 0;">
+          <button onclick="openEodReviewModal()" class="btn btn-outline btn-sm"
+            style="background: #ffffff; color: #334155; border-color: #cbd5e1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #4f46e5;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+            <span>End-of-Day Review</span>
+          </button>
+          <button onclick="openQuickAddModal()" class="btn btn-primary btn-sm"
+            style="background-color: #4f46e5; color: #ffffff;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Quick Add Task</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Work Overview Stats Bar (4 CARDS) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <div class="executive-card"
+          style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #64748b;">
+            <span>Due Today</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #6366f1;">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <div style="margin-top: 0.5rem; display: flex; align-items: baseline; justify-content: space-between;">
+            <span id="stat-due-today" style="font-size: 1.5rem; font-weight: 700; color: #0f172a;">0</span>
+            <span style="font-size: 0.6875rem; color: #94a3b8;">Scheduled today</span>
+          </div>
+        </div>
+
+        <div class="executive-card"
+          style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #64748b;">
+            <span>Completed Today</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #10b981;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div style="margin-top: 0.5rem; display: flex; align-items: baseline; justify-content: space-between;">
+            <span id="stat-completed-today" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</span>
+            <span style="font-size: 0.6875rem; color: #059669; font-weight: 500;">Logged & Done</span>
+          </div>
+        </div>
+
+        <div class="executive-card"
+          style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #64748b;">
+            <span>Overdue</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #ef4444;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <div style="margin-top: 0.5rem; display: flex; align-items: baseline; justify-content: space-between;">
+            <span id="stat-overdue" style="font-size: 1.5rem; font-weight: 700; color: #e11d48;">0</span>
+            <span style="font-size: 0.6875rem; color: #e11d48; font-weight: 500;">Needs Attention</span>
+          </div>
+        </div>
+
+        <div class="executive-card"
+          style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #64748b;">
+            <span>Pending Follow-ups</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #f59e0b;">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div style="margin-top: 0.5rem; display: flex; align-items: baseline; justify-content: space-between;">
+            <span id="stat-followups" style="font-size: 1.5rem; font-weight: 700; color: #d97706;">0</span>
+            <span style="font-size: 0.6875rem; color: #94a3b8;">Waiting on others</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Progress Bar -->
+      <div class="executive-card" style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
+          <span style="color: #1e293b; display: flex; align-items: center; gap: 0.375rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #4f46e5;">
+              <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            </svg>
+            Daily Target Completion Progress
+          </span>
+          <span id="daily-progress-percent" style="color: #4f46e5; font-weight: 700;">0%</span>
+        </div>
+        <div style="width: 100%; height: 0.5rem; background-color: #f1f5f9; border-radius: 9999px; overflow: hidden;">
+          <div id="daily-progress-bar"
+            style="height: 100%; width: 0%; background: linear-gradient(to right, #4f46e5, #10b981); border-radius: 9999px; transition: width 0.4s ease;">
+          </div>
+        </div>
+        <p id="daily-progress-subtext" style="font-size: 0.6875rem; color: #94a3b8;">Calculated from completed tasks
+          today.</p>
+      </div>
+
+      <!-- 2-Column Split: Today's Priority Work + Side Cards -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;" class="grid-col-resp">
+        <!-- Priority Tasks Column -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3
+              style="font-size: 1rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="color: #4f46e5;">
+                <path
+                  d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+              </svg>
+              Today's Priority Work
+            </h3>
+            <a onclick="switchTab('tasks')"
+              style="font-size: 0.75rem; font-weight: 600; color: #4f46e5; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+              <span>View All Tasks</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </a>
+          </div>
+
+          <div id="my-day-priority-list" style="display: flex; flex-direction: column; gap: 0.625rem;">
+            <!-- Populated dynamically with rich task cards -->
+          </div>
+        </div>
+
+        <!-- Right Side: Overdue & Waiting Cards -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <!-- Overdue Tasks Card -->
+          <div class="executive-card" style="padding: 1rem;">
+            <div
+              style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 700; color: #e11d48; margin-bottom: 0.75rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="color: #ef4444;">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span>Overdue Tasks (<span id="side-overdue-count">0</span>)</span>
+            </div>
+            <div id="side-overdue-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Waiting On Colleagues Card -->
+          <div class="executive-card" style="padding: 1rem;">
+            <div
+              style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 700; color: #d97706; margin-bottom: 0.75rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="color: #f59e0b;">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>Waiting On Colleagues (<span id="side-waiting-count">0</span>)</span>
+            </div>
+            <div id="side-waiting-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: TASKS MANAGEMENT HUB (1:1 MATCH OF src/app/tasks/page.tsx) -->
+    <main id="tab-tasks" class="page-container" style="display: none; flex-direction: column; gap: 1.5rem;">
+      <!-- Navigation Tabs Bar -->
+      <div class="executive-card" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;"
+        class="sm-flex-row sm-items-center sm-justify-between">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <h2
+            style="font-size: 1.25rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #6366f1;">
+              <polyline points="9 11 12 14 22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+            Task Management Hub
+          </h2>
+
+          <!-- Sub-Tabs Bar -->
+          <div
+            style="display: flex; align-items: center; gap: 0.25rem; background-color: #f1f5f9; padding: 0.25rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; overflow-x: auto;">
+            <button onclick="setTaskSubTab('all')" id="tasks-subtab-all" class="subtab-btn"
+              style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 0.5rem; background-color: #ffffff; color: #4f46e5; border: none; cursor: pointer; box-shadow: var(--shadow-2xs); white-space: nowrap;">
+              All Tasks (<span id="subtab-all-count">0</span>)
+            </button>
+            <button onclick="setTaskSubTab('upcoming')" id="tasks-subtab-upcoming" class="subtab-btn"
+              style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 0.5rem; background-color: transparent; color: #64748b; border: none; cursor: pointer; white-space: nowrap;">
+              Deadlines & Upcoming
+            </button>
+            <button onclick="setTaskSubTab('waiting')" id="tasks-subtab-waiting" class="subtab-btn"
+              style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 0.5rem; background-color: transparent; color: #64748b; border: none; cursor: pointer; white-space: nowrap;">
+              Waiting For (<span id="subtab-waiting-count">0</span>)
+            </button>
+            <button onclick="setTaskSubTab('completed')" id="tasks-subtab-completed" class="subtab-btn"
+              style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 0.5rem; background-color: transparent; color: #64748b; border: none; cursor: pointer; white-space: nowrap;">
+              Completed (<span id="subtab-completed-count">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+          <!-- View switcher (List vs Board) -->
+          <div
+            style="display: flex; align-items: center; background-color: #f1f5f9; padding: 0.25rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+            <button id="view-mode-list-btn" onclick="setTaskViewMode('list')" title="List View"
+              style="padding: 0.375rem; border-radius: 0.375rem; border: none; cursor: pointer; background: #ffffff; color: #4f46e5; box-shadow: var(--shadow-2xs); display: flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </button>
+            <button id="view-mode-board-btn" onclick="setTaskViewMode('board')" title="Kanban Board View"
+              style="padding: 0.375rem; border-radius: 0.375rem; border: none; cursor: pointer; background: transparent; color: #64748b; display: flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+              </svg>
+            </button>
+          </div>
+
+          <button onclick="openQuickAddModal()" class="btn btn-primary btn-sm"
+            style="background-color: #4f46e5; color: #ffffff;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>New Task</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div id="tasks-filter-bar" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;">
+        <div style="flex: 1; min-width: 14rem; position: relative;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8;">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input id="task-filter-search" oninput="renderTasksPage()" type="text" placeholder="Filter tasks..."
+            style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.25rem; font-size: 0.875rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+        </div>
+
+        <select id="task-filter-status" onchange="renderTasksPage()"
+          style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; color: #334155;">
+          <option value="all">All Statuses</option>
+          <option value="not-started">Not Started</option>
+          <option value="in-progress">In Progress</option>
+          <option value="waiting">Waiting</option>
+          <option value="blocked">Blocked</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <select id="task-filter-priority" onchange="renderTasksPage()"
+          style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; color: #334155;">
+          <option value="all">All Priorities</option>
+          <option value="urgent">🔴 Urgent</option>
+          <option value="high">🟡 High</option>
+          <option value="medium">🔵 Medium</option>
+          <option value="low">⚪ Low</option>
+        </select>
+
+        <select id="task-sort-by" onchange="renderTasksPage()"
+          style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; color: #334155;">
+          <option value="deadline">Sort: Deadline</option>
+          <option value="priority">Sort: Priority</option>
+          <option value="title">Sort: Alphabetical</option>
+          <option value="created">Sort: Recently Added</option>
+        </select>
+      </div>
+
+      <!-- TASK CONTENT CONTAINER: List View vs Board View -->
+      <div id="tasks-view-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </main>
+
+    <!-- TAB 3: NOTES & DOCS (1:1 MATCH OF src/app/notes/page.tsx) -->
+    <main id="tab-notes" class="page-container" style="display: none; flex-direction: column; gap: 1.5rem;">
+      <!-- Header -->
+      <div class="executive-card"
+        style="padding: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <h2
+            style="font-size: 1.25rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="color: #6366f1;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+            Notes & Documentation Hub
+          </h2>
+          <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+            Scratchpad documentation, technical specifications, and executive meeting notes.
+          </p>
+        </div>
+        <button onclick="createNewNote()" class="btn btn-primary btn-sm"
+          style="background-color: #4f46e5; color: #ffffff;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>New Note</span>
+        </button>
+      </div>
+
+      <!-- 2-Column Split: Document list + Editor Canvas -->
+      <div style="display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem;" class="grid-col-resp">
+        <!-- Notes List Column -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 0.875rem; font-weight: 700; color: #0f172a;">
+            <span>Documents (<span id="notes-total-count">0</span>)</span>
+          </div>
+
+          <div style="position: relative;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8;">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input id="note-search-input" oninput="renderNotesList()" type="text" placeholder="Search notes..."
+              style="width: 100%; padding: 0.375rem 0.75rem 0.375rem 2rem; font-size: 0.75rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+          </div>
+
+          <div id="notes-list-items"
+            style="display: flex; flex-direction: column; gap: 0.375rem; max-height: calc(100vh - 240px); overflow-y: auto;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Notes Editor Column -->
+        <div class="executive-card" style="padding: 1.5rem; display: flex; flex-direction: column; min-height: 540px;"
+          id="note-editor-container">
+          <!-- Populated when note is selected or empty state -->
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 4: GUIDED WEEKLY REVIEW (1:1 MATCH OF src/app/weekly-review/page.tsx) -->
+    <main id="tab-weekly-review" class="page-container" style="display: none; flex-direction: column; gap: 1.5rem;">
+      <!-- Header Banner -->
+      <div class="executive-card" style="padding: 1.5rem;">
+        <span
+          style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4f46e5; display: flex; align-items: center; gap: 0.375rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
+          GUIDED PRODUCTIVITY WORKFLOW
+        </span>
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">Guided Weekly Review</h2>
+        <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+          Derived from actual stored items in your IndexedDB workspace. Clean up past work and set clear focus for the
+          upcoming week.
+        </p>
+      </div>
+
+      <!-- Stepper Tabs Bar (4 Steps) -->
+      <div class="executive-card"
+        style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; overflow-x: auto;">
+        <button onclick="setReviewStep(1)" id="review-step-btn-1" class="btn btn-sm"
+          style="font-weight: 600; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;">
+          1. Completed Work (<span id="review-step1-count">0</span>)
+        </button>
+        <button onclick="setReviewStep(2)" id="review-step-btn-2" class="btn btn-sm btn-ghost" style="color: #64748b;">
+          2. Overdue Triage (<span id="review-step2-count">0</span>)
+        </button>
+        <button onclick="setReviewStep(3)" id="review-step-btn-3" class="btn btn-sm btn-ghost" style="color: #64748b;">
+          3. Follow-ups (<span id="review-step3-count">0</span>)
+        </button>
+        <button onclick="setReviewStep(4)" id="review-step-btn-4" class="btn btn-sm btn-ghost" style="color: #64748b;">
+          4. Executive Summary
+        </button>
+      </div>
+
+      <!-- Step Content Area -->
+      <div class="executive-card" style="padding: 1.5rem;" id="review-step-content">
+        <!-- Rendered dynamically for each step -->
+      </div>
+    </main>
+
+    <!-- TAB 5: SETTINGS & BACKUP (1:1 MATCH OF src/app/settings/page.tsx) -->
+    <main id="tab-settings" class="page-container" style="display: none; flex-direction: column; gap: 1.5rem;">
+      <!-- Header -->
+      <div class="executive-card" style="padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; color: #6366f1; margin-bottom: 0.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">Settings & Backup Management</h2>
+        </div>
+        <p style="font-size: 0.875rem; color: #64748b;">
+          Manage local storage statistics, workspace JSON backups, security reliability, and data resets.
+        </p>
+      </div>
+
+      <!-- Card 1: System Alerts & Desktop Notifications -->
+      <div class="executive-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+        <div
+          style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; color: #0f172a;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="color: #4f46e5;">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span>System Alerts & Desktop Notifications</span>
+        </div>
+
+        <div
+          style="padding: 1rem; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;"
+          class="sm-flex-row">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Desktop & Audio Alerts</span>
+              <span id="alerts-status-pill" class="badge badge-amber">Active</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+              Receive timely desktop popups and resonant bell alerts when scheduled task reminders and due commitments
+              trigger.
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+            <button onclick="requestAlertPermission()" class="btn btn-primary btn-sm" id="btn-request-permission">
+              Enable Notifications
+            </button>
+            <button onclick="ringCurrentBell()" class="btn btn-outline btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+              <span>Ring Test Bell</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sound profiles -->
+        <div>
+          <h4 style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">Alert Sound & Tone</h4>
+          <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.75rem;">Choose the acoustic sound profile that
+            best gets your attention.</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+            <!-- Sound 1 -->
+            <div id="sound-card-resonant" onclick="selectBellSound('resonant')"
+              style="padding: 1rem; border-radius: 0.75rem; border: 2px solid #4f46e5; background-color: #eef2ff; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Double Resonant Bell</span>
+                  <span class="badge badge-indigo">Recommended</span>
+                </div>
+                <p style="font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem;">Crisp, high-attention double ring
+                  (Ding-Ding!)</p>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                <span id="sound-status-resonant" style="font-weight: 600; color: #4f46e5;">✓ Active Sound</span>
+                <button onclick="event.stopPropagation(); playSynthesizedBell('resonant');" class="btn btn-sm btn-ghost"
+                  style="padding: 0.25rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
+              </div>
+            </div>
+
+            <!-- Sound 2 -->
+            <div id="sound-card-desk" onclick="selectBellSound('desk')"
+              style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background-color: #ffffff; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Service Desk Bell</span>
+                  <span class="badge badge-slate">Punchy</span>
+                </div>
+                <p style="font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem;">Bright metallic counter bell
+                  strike (Ding!)</p>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                <span id="sound-status-desk" style="font-weight: 500; color: #64748b;">Select</span>
+                <button onclick="event.stopPropagation(); playSynthesizedBell('desk');" class="btn btn-sm btn-ghost"
+                  style="padding: 0.25rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
+              </div>
+            </div>
+
+            <!-- Sound 3 -->
+            <div id="sound-card-rising" onclick="selectBellSound('rising')"
+              style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background-color: #ffffff; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Triple Rising Alert</span>
+                  <span class="badge badge-indigo">Unmissable</span>
+                </div>
+                <p style="font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem;">Fast 3-note ascending alert chime
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                <span id="sound-status-rising" style="font-weight: 500; color: #64748b;">Select</span>
+                <button onclick="event.stopPropagation(); playSynthesizedBell('rising');" class="btn btn-sm btn-ghost"
+                  style="padding: 0.25rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Local Storage Statistics -->
+      <div class="executive-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div
+          style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; color: #0f172a;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="color: #059669;">
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+          </svg>
+          <span>Local Storage Statistics (IndexedDB)</span>
+        </div>
+
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; padding: 1rem; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem;">
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b;">Total Tasks</div>
+            <div id="stat-settings-tasks"
+              style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b;">Follow-Ups</div>
+            <div id="stat-settings-followups"
+              style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b;">Notes & Meetings</div>
+            <div id="stat-settings-notes"
+              style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b;">Est. Data Size</div>
+            <div id="stat-settings-size"
+              style="font-size: 1.25rem; font-weight: 700; color: #4f46e5; margin-top: 0.25rem;">0 KB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Data Backup & Recovery -->
+      <div class="executive-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Data Backup & Recovery</h3>
+        <p style="font-size: 0.75rem; color: #64748b;">
+          Export a full JSON backup of all tasks, notes, meetings, journal entries, and follow-ups for offline
+          safekeeping.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+          <button onclick="exportWorkspaceJson()" class="btn btn-primary btn-sm"
+            style="background-color: #4f46e5; color: #ffffff;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Export Workspace JSON</span>
+          </button>
+          <label class="btn btn-outline btn-sm" style="cursor: pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span>Import Backup File</span>
+            <input type="file" id="import-json-file" accept=".json" onchange="importWorkspaceJson(event)"
+              style="display: none;">
+          </label>
+        </div>
+
+        <div
+          style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: #e11d48;">Clear All Data</div>
+            <div style="font-size: 0.6875rem; color: #94a3b8;">Permanently clear all tasks, notes, and follow-ups to
+              start with a fresh workspace.</div>
+          </div>
+          <button onclick="resetToDemoData()" class="btn btn-sm btn-outline"
+            style="color: #e11d48; border-color: #fecdd3;">
+            Clear Workspace Data
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- 1. QUICK ADD TASK MODAL (1:1 MATCH OF src/components/tasks/QuickAddModal.tsx) -->
+  <div id="quick-add-modal" class="modal-overlay" onclick="handleOverlayClick(event, 'quick-add-modal')">
+    <div class="modal-card" style="padding: 1.5rem;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 700; color: #0f172a;">Quick Capture Task</h3>
+          <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.125rem;">Capture a task or commitment immediately.
+            Save now, organize details later.</p>
+        </div>
+        <button onclick="closeQuickAddModal()"
+          style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="quick-add-form" onsubmit="handleQuickAddSubmit(event)"
+        style="display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <input id="qa-title" type="text" placeholder="What needs to be done?" required autofocus
+            style="width: 100%; padding: 0.625rem 0.875rem; font-size: 0.875rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background-color: #ffffff;">
+        </div>
+
+        <!-- Quick Date Selector -->
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.375rem;">
+            <label
+              style="font-size: 0.75rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 0.375rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Due Date
+            </label>
+            <button type="button" onclick="setQuickDate('')"
+              style="background: none; border: none; font-size: 0.6875rem; color: #64748b; cursor: pointer;">✕
+              Clear</button>
+          </div>
+          <div style="display: flex; gap: 0.375rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+            <button type="button" onclick="setQuickDate('today')" class="btn btn-sm btn-outline"
+              style="padding: 0.25rem 0.5rem; font-size: 0.6875rem;">Today</button>
+            <button type="button" onclick="setQuickDate('tomorrow')" class="btn btn-sm btn-outline"
+              style="padding: 0.25rem 0.5rem; font-size: 0.6875rem;">Tomorrow</button>
+            <button type="button" onclick="setQuickDate('nextmon')" class="btn btn-sm btn-outline"
+              style="padding: 0.25rem 0.5rem; font-size: 0.6875rem;">Next Mon</button>
+            <button type="button" onclick="setQuickDate('in1wk')" class="btn btn-sm btn-outline"
+              style="padding: 0.25rem 0.5rem; font-size: 0.6875rem;">In 1 Wk</button>
+          </div>
+          <input id="qa-due-date" type="date"
+            style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+        </div>
+
+        <!-- Priority, Alert, Recurrence row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Priority</label>
+            <select id="qa-priority"
+              style="width: 100%; padding: 0.5rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+              <option value="urgent">🔴 Urgent</option>
+              <option value="high">🟡 High</option>
+              <option value="medium" selected>🔵 Medium</option>
+              <option value="low">⚪ Low</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">🔔
+              Reminder Alert</label>
+            <input id="qa-reminder-time" type="time"
+              style="width: 100%; padding: 0.45rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+          </div>
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">🔄
+              Recurrence</label>
+            <select id="qa-recurrence"
+              style="width: 100%; padding: 0.5rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+              <option value="none">Does not repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Expandable Details Accordion -->
+        <div>
+          <button type="button" onclick="toggleQuickAddAccordion()"
+            style="background: none; border: none; font-size: 0.75rem; font-weight: 600; color: #4f46e5; cursor: pointer; display: flex; align-items: center; gap: 0.375rem; padding: 0;">
+            <span id="qa-accordion-arrow">›</span>
+            <span>Add subtasks, person involved, notes, or reference link</span>
+          </button>
+
+          <div id="qa-accordion-content"
+            style="display: none; flex-direction: column; gap: 0.75rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+            <div>
+              <label
+                style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Person
+                Involved / Follow-up</label>
+              <input id="qa-person" type="text" placeholder="e.g. Alex Chen (VP Eng)"
+                style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+            </div>
+
+            <div>
+              <label
+                style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Subtasks
+                / Steps</label>
+              <div id="qa-subtasks-list"
+                style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.375rem;"></div>
+              <div style="display: flex; gap: 0.375rem;">
+                <input id="qa-subtask-input" type="text" placeholder="Add step..."
+                  style="flex: 1; padding: 0.375rem 0.625rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+                <button type="button" onclick="addQuickSubtask()" class="btn btn-sm btn-outline"
+                  style="padding: 0.375rem 0.625rem;">+ Step</button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Notes
+                & Context</label>
+              <textarea id="qa-notes" rows="2" placeholder="Key context, talking points, requirements..."
+                style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;"></textarea>
+            </div>
+
+            <div>
+              <label
+                style="font-size: 0.6875rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Reference
+                URL</label>
+              <input id="qa-link" type="url" placeholder="https://..."
+                style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem;">
+          <button type="button" onclick="closeQuickAddModal()" class="btn btn-outline btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="background-color: #4f46e5; color: #ffffff;">Save
+            Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. TASK DETAIL MODAL (1:1 MATCH OF src/components/tasks/TaskDetailModal.tsx) -->
+  <div id="task-detail-modal" class="modal-overlay" onclick="handleOverlayClick(event, 'task-detail-modal')">
+    <div class="modal-card modal-card-lg" style="padding: 1.5rem;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="flex: 1; padding-right: 1rem;">
+          <input id="td-title" type="text"
+            style="width: 100%; font-size: 1.25rem; font-weight: 700; color: #0f172a; border: 1px solid transparent; border-radius: 0.375rem; padding: 0.25rem 0.375rem; background: transparent;">
+        </div>
+        <button onclick="closeTaskDetailModal()"
+          style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <!-- Status, Priority, Date Row -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; padding: 0.75rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">Status</label>
+            <select id="td-status"
+              style="width: 100%; padding: 0.375rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+              <option value="not-started">Not Started</option>
+              <option value="in-progress">In Progress</option>
+              <option value="waiting">Waiting</option>
+              <option value="blocked">Blocked</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">Priority</label>
+            <select id="td-priority"
+              style="width: 100%; padding: 0.375rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+              <option value="urgent">🔴 Urgent</option>
+              <option value="high">🟡 High</option>
+              <option value="medium">🔵 Medium</option>
+              <option value="low">⚪ Low</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">Due
+              Date</label>
+            <input id="td-due-date" type="date"
+              style="width: 100%; padding: 0.375rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+          </div>
+
+          <div>
+            <label
+              style="font-size: 0.6875rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">🔔
+              Alert Time</label>
+            <input id="td-due-time" type="time"
+              style="width: 100%; padding: 0.375rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+          </div>
+        </div>
+
+        <!-- Person Involved -->
+        <div>
+          <label
+            style="font-size: 0.75rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Person
+            Involved / Assigned To</label>
+          <input id="td-person" type="text" placeholder="e.g. Alex Chen (VP Eng)"
+            style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+        </div>
+
+        <!-- Subtasks Checklist -->
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <label style="font-size: 0.75rem; font-weight: 600; color: #475569;">Subtasks Checklist</label>
+            <span id="td-checklist-progress" style="font-size: 0.6875rem; color: #64748b;">0/0</span>
+          </div>
+          <div id="td-checklist-items"
+            style="display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 0.5rem;"></div>
+          <div style="display: flex; gap: 0.375rem;">
+            <input id="td-new-checklist" type="text" placeholder="Add checklist step..."
+              style="flex: 1; padding: 0.375rem 0.625rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+            <button onclick="addDetailChecklist()" class="btn btn-sm btn-outline" style="padding: 0.375rem 0.625rem;">+
+              Add</button>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label
+            style="font-size: 0.75rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Notes
+            & Context</label>
+          <textarea id="td-notes" rows="3" placeholder="Additional details, talking points, context..."
+            style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;"></textarea>
+        </div>
+
+        <!-- Reference Links -->
+        <div>
+          <label
+            style="font-size: 0.75rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.25rem;">Reference
+            Links</label>
+          <div id="td-links-list" style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.5rem;">
+          </div>
+          <div style="display: flex; gap: 0.375rem;">
+            <input id="td-link-title" type="text" placeholder="Link label"
+              style="width: 35%; padding: 0.375rem 0.5rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+            <input id="td-link-url" type="url" placeholder="https://..."
+              style="flex: 1; padding: 0.375rem 0.5rem; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem;">
+            <button onclick="addDetailLink()" class="btn btn-sm btn-outline" style="padding: 0.375rem 0.625rem;">+
+              Link</button>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+          <button onclick="deleteActiveTask()" class="btn btn-sm btn-ghost" style="color: #ef4444;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            <span>Delete Task</span>
+          </button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button onclick="closeTaskDetailModal()" class="btn btn-outline btn-sm">Cancel</button>
+            <button onclick="saveTaskDetail()" class="btn btn-primary btn-sm"
+              style="background-color: #4f46e5; color: #ffffff;">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. COMMAND PALETTE (⌘K) (1:1 MATCH OF src/components/search/CommandPalette.tsx) -->
+  <div id="command-palette-modal" class="modal-overlay" onclick="handleOverlayClick(event, 'command-palette-modal')">
+    <div class="modal-card" style="padding: 1rem; max-width: 36rem;">
+      <div style="position: relative; margin-bottom: 0.75rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: #94a3b8;">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input id="cp-search-input" oninput="handleCommandPaletteSearch()" type="text"
+          placeholder="Type to search tasks, notes, meetings, journal..."
+          style="width: 100%; padding: 0.625rem 0.875rem 0.625rem 2.5rem; font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff;">
+      </div>
+      <div id="cp-results-list"
+        style="max-height: 20rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.25rem;">
+        <!-- Search results rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. END-OF-DAY REVIEW MODAL (1:1 MATCH OF src/components/reviews/EodReviewModal.tsx) -->
+  <div id="eod-modal" class="modal-overlay" onclick="handleOverlayClick(event, 'eod-modal')">
+    <div class="modal-card" style="padding: 1.5rem; max-width: 34rem;">
+      <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="padding: 0.375rem; background: #eef2ff; border-radius: 0.5rem; color: #4f46e5;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a;">End-of-Day Executive Review</h3>
+            <p style="font-size: 0.75rem; color: #64748b;">Clear the deck and prime tomorrow before closing down.</p>
+          </div>
+        </div>
+        <button onclick="closeEodReviewModal()"
+          style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div id="eod-modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Dynamically rendered steps -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- ACTIVE REMINDER ALERT BANNER / POPUP -->
+  <div id="reminder-alert-banner"
+    style="display: none; position: fixed; top: 1.5rem; right: 1.5rem; z-index: 99999; width: 24rem; max-width: calc(100vw - 3rem); background: #ffffff; border: 2px solid #4f46e5; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.25), 0 0 0 1px rgba(79, 70, 229, 0.1); padding: 1.25rem; animation: reminderSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;">
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1;">
+        <div
+          style="width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; background: #eef2ff; border: 1px solid #c7d2fe; display: flex; align-items: center; justify-content: center; color: #4f46e5; flex-shrink: 0;">
+          <svg class="pulse-bell" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span
+              style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4f46e5;">Reminder
+              Alert</span>
+            <span id="reminder-popup-time"
+              style="font-size: 0.6875rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 0.125rem 0.375rem; border-radius: 0.25rem;">Due
+              Now</span>
+          </div>
+          <h4 id="reminder-popup-title"
+            style="font-size: 0.9375rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem; line-height: 1.3;"></h4>
+          <p id="reminder-popup-notes"
+            style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; max-height: 3rem; overflow: hidden; text-overflow: ellipsis;">
+          </p>
+        </div>
+      </div>
+      <button onclick="closeReminderPopup()"
+        style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem; border-radius: 0.25rem;">✕</button>
+    </div>
+
+    <div
+      style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; flex-wrap: wrap;">
+      <button onclick="snoozeActiveReminder(5)" class="btn btn-outline btn-sm" style="font-size: 0.75rem;">Snooze
+        5m</button>
+      <button onclick="completeActiveReminder()" class="btn btn-sm btn-outline"
+        style="font-size: 0.75rem; color: #059669; border-color: #a7f3d0;">✓ Mark Done</button>
+      <button onclick="viewActiveReminder()" class="btn btn-primary btn-sm"
+        style="font-size: 0.75rem; background-color: #4f46e5; color: #ffffff;">View Task</button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT STATE ENGINE & AUDIO SYNTHESIS -->
+  <script>
+    // 1. STATE & LOCAL PERSISTENCE
+    const STORAGE_KEY = 'command_center_fresh_workspace_v1';
+
+    let state = {
+      tasks: [],
+      notes: [],
+      followUps: [],
+      activeTab: 'my-day',
+      taskSubTab: 'all',
+      taskViewMode: 'list',
+      selectedNoteId: null,
+      activeTaskId: null,
+      reviewStep: 1,
+      selectedSound: 'resonant',
+      nextBig3: ['', '', '']
+    };
+
+    // Helper Dates
+    function getTodayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function addDays(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+      } catch (e) { }
+      return dateStr;
+    }
+
+    // 2. FRESH INITIAL WORKSPACE STATE
+    function getDefaultSeedData() {
+      return {
+        tasks: [],
+        notes: [],
+        followUps: [],
+        activeTab: 'my-day',
+        taskSubTab: 'all',
+        taskViewMode: 'list',
+        selectedNoteId: null,
+        activeTaskId: null,
+        reviewStep: 1,
+        selectedSound: 'resonant',
+        nextBig3: ['', '', '']
+      };
+    }
+
+    // Load & Save State
+    function loadState() {
+      try {
+        // Clear old demo state from prior test sessions if present
+        try {
+          localStorage.removeItem('command_center_executive_state_v1');
+          localStorage.removeItem('command_center_workspace_fresh_v1');
+        } catch (_) { }
+
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state = { ...getDefaultSeedData(), ...parsed };
+            if (!Array.isArray(state.tasks)) state.tasks = [];
+            if (!Array.isArray(state.notes)) state.notes = [];
+            if (!Array.isArray(state.followUps)) state.followUps = [];
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('LocalStorage load error, initializing fresh workspace:', e);
+      }
+      state = getDefaultSeedData();
+      saveState();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('LocalStorage save error:', e);
+      }
+      updateGlobalCounters();
+    }
+
+    // 3. WEB AUDIO API SYNTHESIZER (HIGH-ATTENTION ACOUSTIC BELL ENGINE)
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => { });
+      }
+      return audioCtx;
+    }
+
+    function unlockAudio() {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => { });
+      }
+    }
+
+    // Auto-unlock audio on any user interaction so background reminder timers work seamlessly
+    ['click', 'keydown', 'touchstart'].forEach((evt) => {
+      document.addEventListener(evt, unlockAudio, { passive: true });
+    });
+
+    /**
+     * Creates a resonant, metallic bell strike with inharmonic partials
+     */
+    function strikeBell(ctx, destination, startTime, fundamentalFreq, volume, duration) {
+      const partials = [
+        { ratio: 1.0, gain: 0.60, decayRatio: 1.0, wave: 'sine' },
+        { ratio: 2.0, gain: 0.35, decayRatio: 0.8, wave: 'sine' },
+        { ratio: 2.76, gain: 0.28, decayRatio: 0.6, wave: 'triangle' },
+        { ratio: 4.07, gain: 0.18, decayRatio: 0.4, wave: 'triangle' },
+        { ratio: 5.42, gain: 0.10, decayRatio: 0.25, wave: 'triangle' },
+      ];
+
+      partials.forEach(({ ratio, gain, decayRatio, wave }) => {
+        try {
+          const osc = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          osc.type = wave;
+          osc.frequency.setValueAtTime(fundamentalFreq * ratio, startTime);
+
+          const strikePeak = Math.max(0.0001, volume * gain);
+          const ringDuration = duration * decayRatio;
+
+          // Instant physical hammer strike attack
+          gainNode.gain.setValueAtTime(0.0001, startTime);
+          gainNode.gain.linearRampToValueAtTime(strikePeak, startTime + 0.003);
+          // Resonant exponential decay
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + ringDuration);
+
+          osc.connect(gainNode);
+          gainNode.connect(destination);
+
+          osc.start(startTime);
+          osc.stop(startTime + ringDuration + 0.05);
+        } catch (err) {
+          console.warn('Error scheduling bell partial:', err);
+        }
+      });
+    }
+
+    function playSynthesizedBell(soundType) {
+      unlockAudio();
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const type = soundType || state.selectedSound || 'resonant';
+
+      try {
+        const compressor = ctx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-14, ctx.currentTime);
+        compressor.knee.setValueAtTime(8, ctx.currentTime);
+        compressor.ratio.setValueAtTime(8, ctx.currentTime);
+        compressor.attack.setValueAtTime(0.001, ctx.currentTime);
+        compressor.release.setValueAtTime(0.2, ctx.currentTime);
+
+        const masterGain = ctx.createGain();
+        masterGain.gain.setValueAtTime(0.9, ctx.currentTime);
+
+        compressor.connect(masterGain);
+        masterGain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+
+        if (type === 'desk') {
+          // Single bright reception/desk bell ("DING!")
+          strikeBell(ctx, compressor, now, 1280, 0.95, 1.8);
+        } else if (type === 'rising') {
+          // Triple rising alert chimes
+          strikeBell(ctx, compressor, now, 880, 0.75, 0.8);
+          strikeBell(ctx, compressor, now + 0.12, 1174.66, 0.85, 0.9);
+          strikeBell(ctx, compressor, now + 0.24, 1567.98, 0.95, 1.4);
+        } else {
+          // Default: Crisp, double metallic bell ("DING-DING!")
+          // Strike 1: A5 (880 Hz)
+          strikeBell(ctx, compressor, now, 880, 0.8, 0.9);
+          // Strike 2: High E6 (1318.5 Hz) - bright attention ringer
+          strikeBell(ctx, compressor, now + 0.16, 1318.51, 0.95, 1.5);
+        }
+      } catch (err) {
+        console.warn('AudioContext playback error:', err);
+      }
+    }
+
+    function ringCurrentBell() {
+      unlockAudio();
+      playSynthesizedBell(state.selectedSound || 'resonant');
+      showToast('Bell Alert Sounding', 'Acoustic bell chime tested successfully.', 'info');
+    }
+
+    // 4. REMINDER NOTIFICATION & BACKGROUND SCHEDULER
+    const triggeredReminders = new Set();
+    const sessionStartTime = Date.now();
+    let activeReminderTaskId = null;
+    let reminderPopupTimer = null;
+    let originalDocumentTitle = document.title;
+    let titleFlashTimer = null;
+
+    function flashDocumentTitle(msg) {
+      if (titleFlashTimer) clearInterval(titleFlashTimer);
+      let toggle = false;
+      titleFlashTimer = setInterval(() => {
+        document.title = toggle ? msg : originalDocumentTitle;
+        toggle = !toggle;
+      }, 1000);
+    }
+
+    function stopTitleFlash() {
+      if (titleFlashTimer) {
+        clearInterval(titleFlashTimer);
+        titleFlashTimer = null;
+        document.title = originalDocumentTitle;
+      }
+    }
+
+    window.addEventListener('focus', stopTitleFlash);
+
+    function showReminderPopup(task) {
+      activeReminderTaskId = task.id;
+      const banner = document.getElementById('reminder-alert-banner');
+      const titleEl = document.getElementById('reminder-popup-title');
+      const timeEl = document.getElementById('reminder-popup-time');
+      const notesEl = document.getElementById('reminder-popup-notes');
+
+      if (!banner) return;
+
+      titleEl.textContent = task.title || 'Task Reminder';
+      timeEl.textContent = task.dueTime ? `Due @ ${task.dueTime}` : 'Due Now';
+      notesEl.textContent = task.notes || (task.personInvolved ? `Involving: ${task.personInvolved}` : 'Scheduled reminder alert');
+      banner.style.display = 'block';
+
+      if (reminderPopupTimer) clearTimeout(reminderPopupTimer);
+      // Auto-hide after 45 seconds if unacknowledged
+      reminderPopupTimer = setTimeout(() => {
+        closeReminderPopup();
+      }, 45000);
+    }
+
+    function closeReminderPopup() {
+      const banner = document.getElementById('reminder-alert-banner');
+      if (banner) banner.style.display = 'none';
+      stopTitleFlash();
+      activeReminderTaskId = null;
+    }
+
+    function viewActiveReminder() {
+      const id = activeReminderTaskId;
+      closeReminderPopup();
+      if (id) openTaskDetailModal(id);
+    }
+
+    function completeActiveReminder() {
+      if (!activeReminderTaskId) return;
+      toggleTaskCompletion(activeReminderTaskId);
+      closeReminderPopup();
+    }
+
+    function snoozeActiveReminder(mins = 5) {
+      if (!activeReminderTaskId) return;
+      const task = state.tasks.find((t) => t.id === activeReminderTaskId);
+      if (task) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + mins);
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        task.dueTime = `${h}:${m}`;
+        const newKey = `rem_${task.id}_${task.dueDate || getTodayStr()}_${task.dueTime}`;
+        triggeredReminders.delete(newKey);
+        saveState();
+        showToast('Reminder Snoozed', `Alert snoozed until ${task.dueTime}.`, 'info');
+        if (state.activeTab === 'my-day') renderMyDayPage();
+        else if (state.activeTab === 'tasks') renderTasksPage();
+      }
+      closeReminderPopup();
+    }
+
+    function sendSystemNotification(title, options = {}) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          const notif = new Notification(title, {
+            body: options.body || 'Task reminder alert',
+            tag: options.tag || 'task-reminder',
+            silent: true // Audio is handled by Web Audio API
+          });
+          notif.onclick = () => {
+            window.focus();
+            stopTitleFlash();
+            if (options.taskId) openTaskDetailModal(options.taskId);
+            notif.close();
+          };
+        } catch (e) {
+          console.warn('Native notification failed:', e);
+        }
+      }
+    }
+
+    function triggerReminderAlert(task) {
+      // 1. Play high-attention bell chime
+      playSynthesizedBell(state.selectedSound || 'resonant');
+
+      // 2. Flash tab title
+      flashDocumentTitle(`🔔 Reminder: ${task.title}`);
+
+      // 3. Desktop Notification (if permitted)
+      sendSystemNotification(`🔔 Reminder: ${task.title}`, {
+        body: task.notes || `Scheduled alert due at ${task.dueTime}`,
+        tag: task.id,
+        taskId: task.id
+      });
+
+      // 4. Prominent in-app banner popup
+      showReminderPopup(task);
+
+      // 5. In-app toast
+      showToast(`🔔 Reminder: ${task.title}`, task.dueTime ? `Due at ${task.dueTime}` : undefined, 'info');
+
+      // 6. Update global counters & alert dropdown
+      updateGlobalCounters();
+    }
+
+    function checkTaskReminders() {
+      const now = new Date();
+      const todayStr = getTodayStr();
+      const currentHours = String(now.getHours()).padStart(2, '0');
+      const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+      const currentTimeStr = `${currentHours}:${currentMinutes}`;
+
+      state.tasks.forEach((task) => {
+        if (task.status === 'completed') return;
+        if (!task.dueTime) return;
+
+        const taskDueDate = task.dueDate || todayStr;
+        const reminderKey = `rem_${task.id}_${taskDueDate}_${task.dueTime}`;
+
+        if (triggeredReminders.has(reminderKey)) return;
+
+        // Check if task is scheduled for today
+        if (taskDueDate === todayStr) {
+          if (currentTimeStr >= task.dueTime) {
+            const taskCreatedTime = task.createdAt ? new Date(task.createdAt).getTime() : 0;
+            const isFreshlyCreated = (Date.now() - taskCreatedTime) < 180000;
+            const isExactMinute = (currentTimeStr === task.dueTime);
+
+            if (isExactMinute || isFreshlyCreated || taskCreatedTime >= sessionStartTime) {
+              triggeredReminders.add(reminderKey);
+              triggerReminderAlert(task);
+            } else {
+              triggeredReminders.add(reminderKey);
+            }
+          }
+        }
+      });
+    }
+
+    function selectBellSound(sound) {
+      state.selectedSound = sound;
+      saveState();
+
+      ['resonant', 'desk', 'rising'].forEach((s) => {
+        const card = document.getElementById(`sound-card-${s}`);
+        const status = document.getElementById(`sound-status-${s}`);
+        if (s === sound) {
+          card.style.border = '2px solid #4f46e5';
+          card.style.backgroundColor = '#eef2ff';
+          status.textContent = '✓ Active Sound';
+          status.style.color = '#4f46e5';
+          status.style.fontWeight = '600';
+        } else {
+          card.style.border = '1px solid #e2e8f0';
+          card.style.backgroundColor = '#ffffff';
+          status.textContent = 'Select';
+          status.style.color = '#64748b';
+          status.style.fontWeight = '500';
+        }
+      });
+
+      playSynthesizedBell(sound);
+      showToast('Sound Updated', `Alert tone set to ${sound.toUpperCase()}.`);
+    }
+
+    // 4. TOAST NOTIFICATIONS
+    function showToast(title, message, variant = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+
+      let iconColor = variant === 'danger' ? '#ef4444' : variant === 'info' ? '#3b82f6' : '#10b981';
+      toast.innerHTML = `
+        <div style="color: ${iconColor}; display: flex; align-items: center; flex-shrink: 0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <h4 style="font-size: 0.8125rem; font-weight: 700; color: #0f172a; line-height: 1.25;">${title}</h4>
+          ${message ? `<p style="font-size: 0.75rem; color: #64748b; margin-top: 0.125rem;">${message}</p>` : ''}
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(12px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 260);
+      }, 3500);
+    }
+
+    // 5. GLOBAL TAB ROUTING & NAVIGATION
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      const tabs = ['my-day', 'tasks', 'notes', 'weekly-review', 'settings'];
+
+      tabs.forEach((t) => {
+        const el = document.getElementById(`tab-${t}`);
+        const nav = document.getElementById(`nav-${t}`);
+        if (el) el.style.display = t === tabId ? 'flex' : 'none';
+
+        if (nav) {
+          if (t === tabId) {
+            nav.style.backgroundColor = '#eef2ff';
+            nav.style.color = '#4338ca';
+            nav.style.fontWeight = '600';
+            nav.style.border = '1px solid rgba(199, 210, 254, 0.8)';
+            nav.style.boxShadow = 'var(--shadow-2xs)';
+            const svg = nav.querySelector('svg');
+            if (svg) svg.style.color = '#4f46e5';
+          } else {
+            nav.style.backgroundColor = 'transparent';
+            nav.style.color = '#475569';
+            nav.style.fontWeight = '500';
+            nav.style.border = 'none';
+            nav.style.boxShadow = 'none';
+            const svg = nav.querySelector('svg');
+            if (svg) svg.style.color = '#94a3b8';
+          }
+        }
+      });
+
+      // Update Header Title
+      const breadcrumb = document.getElementById('header-breadcrumb');
+      if (breadcrumb) {
+        if (tabId === 'my-day') breadcrumb.textContent = 'My Day';
+        else if (tabId === 'tasks') breadcrumb.textContent = 'Task Management Hub';
+        else if (tabId === 'notes') breadcrumb.textContent = 'Knowledge & Journal Hub';
+        else if (tabId === 'weekly-review') breadcrumb.textContent = 'Guided Weekly Review';
+        else if (tabId === 'settings') breadcrumb.textContent = 'Settings & Backup';
+      }
+
+      closeMobileSidebar();
+
+      // Render tab-specific view
+      if (tabId === 'my-day') renderMyDayPage();
+      else if (tabId === 'tasks') renderTasksPage();
+      else if (tabId === 'notes') renderNotesPage();
+      else if (tabId === 'weekly-review') renderWeeklyReviewPage();
+      else if (tabId === 'settings') renderSettingsPage();
+    }
+
+    function toggleMobileSidebar() {
+      const s = document.getElementById('sidebar');
+      const b = document.getElementById('mobile-backdrop');
+      s.classList.toggle('open');
+      b.style.display = s.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function closeMobileSidebar() {
+      const s = document.getElementById('sidebar');
+      const b = document.getElementById('mobile-backdrop');
+      s.classList.remove('open');
+      b.style.display = 'none';
+    }
+
+    // 6. GLOBAL COUNTERS & ALERTS
+    function updateGlobalCounters() {
+      const today = getTodayStr();
+      const overdueTasks = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate && t.dueDate < today);
+      const dueTodayTasks = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate === today);
+      const reminderTasks = state.tasks.filter((t) => t.status !== 'completed' && t.dueTime);
+      const dueFollowUps = state.followUps.filter((f) => f.status === 'pending' && f.nextFollowUpDate && f.nextFollowUpDate <= today);
+
+      const totalAlerts = overdueTasks.length + dueTodayTasks.length + reminderTasks.length + dueFollowUps.length;
+
+      // Bell counter badge
+      const bellCounter = document.getElementById('alerts-counter');
+      if (bellCounter) {
+        bellCounter.textContent = totalAlerts > 99 ? '99+' : totalAlerts;
+        bellCounter.style.display = totalAlerts > 0 ? 'flex' : 'none';
+      }
+
+      // Sidebar Overdue badge
+      const sidebarOverdue = document.getElementById('nav-overdue-badge');
+      if (sidebarOverdue) {
+        sidebarOverdue.textContent = overdueTasks.length;
+        sidebarOverdue.style.display = overdueTasks.length > 0 ? 'inline-flex' : 'none';
+      }
+
+      // Populate Alerts Dropdown List
+      const alertsList = document.getElementById('alerts-list');
+      const alertsSubtitle = document.getElementById('alerts-dropdown-subtitle');
+      if (alertsSubtitle) {
+        alertsSubtitle.textContent = `${totalAlerts} ${totalAlerts === 1 ? 'item requires' : 'items require'} attention`;
+      }
+
+      if (alertsList) {
+        if (totalAlerts === 0) {
+          alertsList.innerHTML = `<div style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.75rem;">All clear! No pending alerts right now.</div>`;
+        } else {
+          let html = '';
+
+          // Overdue section
+          if (overdueTasks.length > 0) {
+            html += `<div style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #e11d48; margin: 0.5rem 0.5rem 0.25rem;">Overdue Tasks (${overdueTasks.length})</div>`;
+            overdueTasks.forEach((t) => {
+              html += `
+                <div onclick="openTaskDetailModal('${t.id}')" style="padding: 0.5rem; border-radius: 0.5rem; background: #fff1f2; border: 1px solid #fecdd3; margin-bottom: 0.25rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: #9f1239; truncate;">${escapeHtml(t.title)}</span>
+                  <span style="font-size: 0.6875rem; color: #e11d48; font-weight: 700;">${formatDisplayDate(t.dueDate)}</span>
+                </div>
+              `;
+            });
+          }
+
+          // Due Today section
+          if (dueTodayTasks.length > 0) {
+            html += `<div style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #4f46e5; margin: 0.5rem 0.5rem 0.25rem;">Due Today (${dueTodayTasks.length})</div>`;
+            dueTodayTasks.forEach((t) => {
+              html += `
+                <div onclick="openTaskDetailModal('${t.id}')" style="padding: 0.5rem; border-radius: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; margin-bottom: 0.25rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: #1e293b;">${escapeHtml(t.title)}</span>
+                  <span style="font-size: 0.6875rem; color: #6366f1; font-weight: 600;">Today ${t.dueTime ? '@ ' + t.dueTime : ''}</span>
+                </div>
+              `;
+            });
+          }
+
+          // Follow-ups section
+          if (dueFollowUps.length > 0) {
+            html += `<div style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #d97706; margin: 0.5rem 0.5rem 0.25rem;">Follow-ups (${dueFollowUps.length})</div>`;
+            dueFollowUps.forEach((f) => {
+              html += `
+                <div style="padding: 0.5rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fde68a; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: #92400e;">${escapeHtml(f.person)}</span>
+                    <p style="font-size: 0.6875rem; color: #b45309;">${escapeHtml(f.topic)}</p>
+                  </div>
+                </div>
+              `;
+            });
+          }
+
+          alertsList.innerHTML = html;
+        }
+      }
+    }
+
+    function toggleAlertsDropdown() {
+      const dd = document.getElementById('alerts-dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('alerts-dropdown');
+      const btn = document.getElementById('alerts-bell-btn');
+      if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
+        dd.style.display = 'none';
+      }
+    });
+
+    // 7. RENDER TAB 1: MY DAY (1:1 PARITY WITH NEXT.JS APP)
+    function renderMyDayPage() {
+      const today = getTodayStr();
+
+      // Time of Day Greeting
+      const hour = new Date().getHours();
+      let greeting = 'Good morning.';
+      if (hour >= 12 && hour < 17) greeting = 'Good afternoon.';
+      else if (hour >= 17) greeting = 'Good evening.';
+
+      const heroGreeting = document.getElementById('hero-greeting');
+      if (heroGreeting) heroGreeting.textContent = greeting;
+
+      const dateObj = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('hero-date-str').textContent = dateObj.toLocaleDateString('en-US', options).toUpperCase();
+
+      // Stats
+      const dueTodayTasks = state.tasks.filter((t) => t.dueDate === today && t.status !== 'completed');
+      const completedToday = state.tasks.filter((t) => t.status === 'completed');
+      const overdueTasks = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate && t.dueDate < today);
+      const followUpsWaiting = state.followUps.filter((f) => f.status === 'pending');
+
+      document.getElementById('hero-due-count').textContent = `${dueTodayTasks.length} tasks`;
+      document.getElementById('hero-overdue-count').textContent = `${overdueTasks.length} overdue items`;
+
+      document.getElementById('stat-due-today').textContent = dueTodayTasks.length;
+      document.getElementById('stat-completed-today').textContent = completedToday.length;
+      document.getElementById('stat-overdue').textContent = overdueTasks.length;
+      document.getElementById('stat-followups').textContent = followUpsWaiting.length;
+
+      // Progress bar
+      const totalTarget = dueTodayTasks.length + completedToday.length;
+      const progressPercent = totalTarget > 0 ? Math.round((completedToday.length / totalTarget) * 100) : 0;
+      document.getElementById('daily-progress-percent').textContent = `${progressPercent}%`;
+      document.getElementById('daily-progress-bar').style.width = `${progressPercent}%`;
+      document.getElementById('daily-progress-subtext').textContent = totalTarget === 0
+        ? 'No target tasks scheduled for today.'
+        : `Calculated from ${completedToday.length} completed of ${totalTarget} total target tasks today.`;
+
+      // Priority list
+      const priorityTasks = state.tasks.filter((t) => t.dueDate === today || t.status === 'in-progress');
+      const listEl = document.getElementById('my-day-priority-list');
+
+      if (priorityTasks.length === 0) {
+        listEl.innerHTML = `
+          <div class="executive-card" style="padding: 2.5rem; text-align: center; color: #64748b;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" style="margin: 0 auto 0.5rem;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+            <h4 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">No pending tasks for today</h4>
+            <p style="font-size: 0.75rem; margin-top: 0.25rem;">Your schedule for today is clear! Add a new task or review upcoming work.</p>
+            <button onclick="openQuickAddModal()" class="btn btn-primary btn-sm" style="margin-top: 0.75rem;">Add Task for Today</button>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = priorityTasks.map((t) => renderTaskCardHtml(t)).join('');
+      }
+
+      // Side: Overdue list
+      document.getElementById('side-overdue-count').textContent = overdueTasks.length;
+      const sideOverdueEl = document.getElementById('side-overdue-list');
+      if (overdueTasks.length === 0) {
+        sideOverdueEl.innerHTML = `<p style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">No overdue tasks. Clean slate!</p>`;
+      } else {
+        sideOverdueEl.innerHTML = overdueTasks.slice(0, 4).map((t) => `
+          <div onclick="openTaskDetailModal('${t.id}')" style="padding: 0.625rem; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 0.625rem; cursor: pointer; display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+            <div style="flex: 1; min-width: 0;">
+              <h5 style="font-size: 0.75rem; font-weight: 600; color: #9f1239; truncate;">${escapeHtml(t.title)}</h5>
+              <span style="font-size: 0.6875rem; color: #e11d48; font-weight: 600;">Due: ${formatDisplayDate(t.dueDate)}</span>
+            </div>
+            <span class="badge badge-rose">${t.priority}</span>
+          </div>
+        `).join('');
+      }
+
+      // Side: Waiting list
+      document.getElementById('side-waiting-count').textContent = followUpsWaiting.length;
+      const sideWaitingEl = document.getElementById('side-waiting-list');
+      if (followUpsWaiting.length === 0) {
+        sideWaitingEl.innerHTML = `<p style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">No pending follow-ups waiting on others.</p>`;
+      } else {
+        sideWaitingEl.innerHTML = followUpsWaiting.slice(0, 3).map((f) => `
+          <div style="padding: 0.625rem; background: rgba(254, 243, 199, 0.4); border: 1px solid rgba(253, 230, 138, 0.8); border-radius: 0.625rem;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: #0f172a;">${escapeHtml(f.topic)}</div>
+            <p style="font-size: 0.6875rem; color: #64748b; margin-top: 0.125rem;">Waiting on <strong style="color: #334155;">${escapeHtml(f.person)}</strong></p>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Task Card Component Renderer (Identical to src/components/tasks/TaskItem.tsx)
+    function renderTaskCardHtml(task) {
+      const isCompleted = task.status === 'completed';
+      const today = getTodayStr();
+      const isOverdue = !isCompleted && task.dueDate && task.dueDate < today;
+
+      const priorityBadge = task.priority === 'urgent'
+        ? `<span class="badge badge-rose">🔥 urgent</span>`
+        : task.priority === 'high'
+          ? `<span class="badge badge-amber">high</span>`
+          : task.priority === 'medium'
+            ? `<span class="badge badge-indigo">medium</span>`
+            : `<span class="badge badge-slate">low</span>`;
+
+      const statusBadge = task.status === 'in-progress'
+        ? `<span class="badge badge-indigo">In Progress</span>`
+        : task.status === 'waiting'
+          ? `<span class="badge badge-amber">Waiting</span>`
+          : task.status === 'blocked'
+            ? `<span class="badge badge-rose">Blocked</span>`
+            : '';
+
+      const completedChecklist = task.checklist ? task.checklist.filter((c) => c.completed).length : 0;
+      const totalChecklist = task.checklist ? task.checklist.length : 0;
+
+      return `
+        <div onclick="openTaskDetailModal('${task.id}')" style="padding: 0.875rem 1rem; background-color: ${isOverdue ? '#fff1f2' : '#ffffff'}; border: 1px solid ${isOverdue ? '#fecdd3' : '#e2e8f0'}; border-radius: 0.75rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; cursor: pointer; box-shadow: var(--shadow-2xs); transition: all 0.15s ease;">
+          <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
+            <!-- Checkbox -->
+            <button type="button" onclick="event.stopPropagation(); toggleTaskCompletion('${task.id}')" style="margin-top: 0.125rem; background: none; border: none; cursor: pointer; color: ${isCompleted ? '#10b981' : '#cbd5e1'}; padding: 0;">
+              ${isCompleted
+          ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="#d1fae5" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10 15 7 12"/></svg>`
+          : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`
+        }
+            </button>
+
+            <!-- Details -->
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <h4 style="font-size: 0.875rem; font-weight: 600; color: ${isCompleted ? '#94a3b8' : '#0f172a'}; text-decoration: ${isCompleted ? 'line-through' : 'none'};">
+                  ${escapeHtml(task.title)}
+                </h4>
+                ${statusBadge}
+                ${priorityBadge}
+              </div>
+
+              <!-- Meta pills row -->
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.375rem; font-size: 0.6875rem; color: #64748b; flex-wrap: wrap;">
+                ${task.dueDate ? `
+                  <span style="display: flex; align-items: center; gap: 0.25rem; color: ${isOverdue ? '#e11d48' : '#64748b'}; font-weight: ${isOverdue ? '700' : '500'};">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    ${task.dueDate === today ? 'Today' : formatDisplayDate(task.dueDate)}
+                  </span>
+                ` : ''}
+
+                ${task.dueTime ? `
+                  <span style="display: inline-flex; align-items: center; gap: 0.25rem; color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-weight: 600;">
+                    🔔 ${task.dueTime}
+                  </span>
+                ` : ''}
+
+                ${totalChecklist > 0 ? `
+                  <span style="display: flex; align-items: center; gap: 0.25rem;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    ${completedChecklist}/${totalChecklist} steps
+                  </span>
+                ` : ''}
+
+                ${task.personInvolved ? `
+                  <span style="display: flex; align-items: center; gap: 0.25rem;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    ${escapeHtml(task.personInvolved)}
+                  </span>
+                ` : ''}
+
+                ${task.tags && task.tags.length > 0 ? task.tags.map((tg) => `
+                  <span style="color: #6366f1; font-weight: 500;">#${escapeHtml(tg)}</span>
+                `).join('') : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 8. RENDER TAB 2: TASKS HUB (LIST & KANBAN VIEWS)
+    function setTaskSubTab(subTab) {
+      state.taskSubTab = subTab;
+      ['all', 'upcoming', 'waiting', 'completed'].forEach((t) => {
+        const btn = document.getElementById(`tasks-subtab-${t}`);
+        if (t === subTab) {
+          btn.style.backgroundColor = '#ffffff';
+          btn.style.color = '#4f46e5';
+          btn.style.boxShadow = 'var(--shadow-2xs)';
+        } else {
+          btn.style.backgroundColor = 'transparent';
+          btn.style.color = '#64748b';
+          btn.style.boxShadow = 'none';
+        }
+      });
+      renderTasksPage();
+    }
+
+    function setTaskViewMode(mode) {
+      state.taskViewMode = mode;
+      const listBtn = document.getElementById('view-mode-list-btn');
+      const boardBtn = document.getElementById('view-mode-board-btn');
+      if (mode === 'list') {
+        listBtn.style.background = '#ffffff';
+        listBtn.style.color = '#4f46e5';
+        boardBtn.style.background = 'transparent';
+        boardBtn.style.color = '#64748b';
+      } else {
+        boardBtn.style.background = '#ffffff';
+        boardBtn.style.color = '#4f46e5';
+        listBtn.style.background = 'transparent';
+        listBtn.style.color = '#64748b';
+      }
+      renderTasksPage();
+    }
+
+    function renderTasksPage() {
+      const container = document.getElementById('tasks-view-container');
+      const today = getTodayStr();
+
+      // Counts
+      const allCount = state.tasks.length;
+      const waitingCount = state.followUps.filter((f) => f.status === 'pending').length;
+      const completedCount = state.tasks.filter((t) => t.status === 'completed').length;
+
+      document.getElementById('subtab-all-count').textContent = allCount;
+      document.getElementById('subtab-waiting-count').textContent = waitingCount;
+      document.getElementById('subtab-completed-count').textContent = completedCount;
+
+      // Filter Bar visibility
+      const filterBar = document.getElementById('tasks-filter-bar');
+      filterBar.style.display = (state.taskSubTab === 'all' && state.taskViewMode === 'list') ? 'flex' : 'none';
+
+      // SUBTAB: DEADLINES & UPCOMING
+      if (state.taskSubTab === 'upcoming') {
+        const overdue = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate && t.dueDate < today);
+        const dueToday = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate === today);
+        const dueTomorrow = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate === addDays(1));
+        const dueNext7 = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate > addDays(1) && t.dueDate <= addDays(7));
+        const dueLater = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate > addDays(7));
+
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            ${renderUpcomingSection('Overdue Tasks', overdue, '#e11d48')}
+            ${renderUpcomingSection('Due Today', dueToday, '#4f46e5')}
+            ${renderUpcomingSection('Due Tomorrow', dueTomorrow, '#f59e0b')}
+            ${renderUpcomingSection('Next 7 Days', dueNext7, '#059669')}
+            ${renderUpcomingSection('Later / Future', dueLater, '#64748b')}
+          </div>
+        `;
+        return;
+      }
+
+      // SUBTAB: WAITING FOR
+      if (state.taskSubTab === 'waiting') {
+        const pending = state.followUps.filter((f) => f.status === 'pending');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Active Follow-up Commitments (${pending.length})</h3>
+            </div>
+            ${pending.length === 0
+            ? `<div class="executive-card" style="padding: 2rem; text-align: center; color: #94a3b8;">No pending follow-ups waiting on others.</div>`
+            : pending.map((f) => `
+                <div class="executive-card" style="padding: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">${escapeHtml(f.topic)}</h4>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Waiting on <strong style="color: #334155;">${escapeHtml(f.person)}</strong> &bull; Follow up by: ${formatDisplayDate(f.nextFollowUpDate)}</p>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="resolveFollowUp('${f.id}')" class="btn btn-sm btn-outline" style="color: #059669;">Resolve</button>
+                    <button onclick="deleteFollowUp('${f.id}')" class="btn btn-sm btn-ghost" style="color: #ef4444;">Delete</button>
+                  </div>
+                </div>
+              `).join('')
+          }
+          </div>
+        `;
+        return;
+      }
+
+      // SUBTAB: COMPLETED
+      if (state.taskSubTab === 'completed') {
+        const completed = state.tasks.filter((t) => t.status === 'completed');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Archived Completed Deliverables (${completed.length})</h3>
+            </div>
+            ${completed.length === 0
+            ? `<div class="executive-card" style="padding: 2rem; text-align: center; color: #94a3b8;">No completed tasks in archive yet.</div>`
+            : completed.map((t) => renderTaskCardHtml(t)).join('')
+          }
+          </div>
+        `;
+        return;
+      }
+
+      // SUBTAB: ALL TASKS - KANBAN BOARD VIEW
+      if (state.taskViewMode === 'board') {
+        const columns = [
+          { id: 'not-started', title: 'Not Started', color: '#cbd5e1' },
+          { id: 'in-progress', title: 'In Progress', color: '#6366f1' },
+          { id: 'waiting', title: 'Waiting', color: '#f59e0b' },
+          { id: 'blocked', title: 'Blocked', color: '#ef4444' },
+          { id: 'completed', title: 'Completed', color: '#10b981' }
+        ];
+
+        container.innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(5, minmax(220px, 1fr)); gap: 1rem; overflow-x: auto; padding-bottom: 1rem;">
+            ${columns.map((col) => {
+          const colTasks = state.tasks.filter((t) => t.status === col.id);
+          return `
+                <div style="display: flex; flex-direction: column; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; min-height: 480px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 2px solid ${col.color};">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <h4 style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #334155;">${col.title}</h4>
+                      <span style="font-size: 0.6875rem; font-weight: 600; padding: 0.125rem 0.375rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 9999px; color: #475569;">${colTasks.length}</span>
+                    </div>
+                    <button onclick="openQuickAddModal({ status: '${col.id}' })" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.25rem;">+</button>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1; overflow-y: auto;">
+                    ${colTasks.length === 0
+              ? `<div style="padding: 1.5rem; text-align: center; font-size: 0.75rem; color: #94a3b8; border: 1px dashed #cbd5e1; border-radius: 0.5rem;">No tasks</div>`
+              : colTasks.map((t) => renderTaskCardHtml(t)).join('')
+            }
+                  </div>
+                </div>
+              `;
+        }).join('')}
+          </div>
+        `;
+        return;
+      }
+
+      // SUBTAB: ALL TASKS - LIST VIEW WITH FILTERS
+      const search = (document.getElementById('task-filter-search')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('task-filter-status')?.value || 'all';
+      const priorityFilter = document.getElementById('task-filter-priority')?.value || 'all';
+      const sortBy = document.getElementById('task-sort-by')?.value || 'deadline';
+
+      let filtered = state.tasks.filter((t) => {
+        if (search && !t.title.toLowerCase().includes(search) && !(t.notes || '').toLowerCase().includes(search)) return false;
+        if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+        if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+        return true;
+      });
+
+      // Sorting
+      filtered.sort((a, b) => {
+        if (sortBy === 'deadline') return (a.dueDate || '9999') > (b.dueDate || '9999') ? 1 : -1;
+        if (sortBy === 'priority') {
+          const map = { urgent: 1, high: 2, medium: 3, low: 4 };
+          return (map[a.priority] || 5) - (map[b.priority] || 5);
+        }
+        if (sortBy === 'title') return a.title.localeCompare(b.title);
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="executive-card" style="padding: 3rem; text-align: center; color: #64748b;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="margin: 0 auto 0.5rem;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h4 style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">No tasks found</h4>
+            <p style="font-size: 0.75rem; margin-top: 0.25rem;">You have no tasks matching this view.</p>
+            <button onclick="openQuickAddModal()" class="btn btn-primary btn-sm" style="margin-top: 0.75rem;">Create Task</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+            ${filtered.map((t) => renderTaskCardHtml(t)).join('')}
+          </div>
+        `;
+      }
+    }
+
+    function renderUpcomingSection(title, list, color) {
+      if (list.length === 0) return '';
+      return `
+        <div>
+          <h4 style="font-size: 0.8125rem; font-weight: 700; color: ${color}; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.025em;">
+            ${title} (${list.length})
+          </h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            ${list.map((t) => renderTaskCardHtml(t)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 9. RENDER TAB 3: NOTES & DOCS (1:1 PARITY WITH NEXT.JS APP)
+    function renderNotesPage() {
+      renderNotesList();
+      renderActiveNoteEditor();
+    }
+
+    function renderNotesList() {
+      const search = (document.getElementById('note-search-input')?.value || '').toLowerCase();
+      document.getElementById('notes-total-count').textContent = state.notes.length;
+      const listEl = document.getElementById('notes-list-items');
+
+      const filtered = state.notes.filter((n) => !search || n.title.toLowerCase().includes(search) || n.content.toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.75rem;">No notes found</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map((n) => {
+        const isSelected = n.id === state.selectedNoteId;
+        const excerpt = n.content.replace(/<[^>]*>?/gm, '').slice(0, 60);
+        return `
+          <div onclick="selectNote('${n.id}')" style="padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: ${isSelected ? '#eef2ff' : '#ffffff'}; border: 1px solid ${isSelected ? '#c7d2fe' : '#e2e8f0'}; cursor: pointer;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h5 style="font-size: 0.8125rem; font-weight: 600; color: ${isSelected ? '#4338ca' : '#0f172a'}; truncate;">${escapeHtml(n.title || 'Untitled Document')}</h5>
+              <button onclick="event.stopPropagation(); deleteNote('${n.id}')" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.125rem;">✕</button>
+            </div>
+            <p style="font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem; truncate;">${escapeHtml(excerpt || 'Empty document...')}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectNote(id) {
+      state.selectedNoteId = id;
+      renderNotesPage();
+    }
+
+    function createNewNote() {
+      const newNote = {
+        id: `note_${Date.now()}`,
+        title: 'New Document',
+        content: '<h1>New Document</h1><p>Start typing your executive notes here...</p>',
+        updatedAt: new Date().toISOString()
+      };
+      state.notes.unshift(newNote);
+      state.selectedNoteId = newNote.id;
+      saveState();
+      renderNotesPage();
+      showToast('Document Created', 'New note ready for writing.');
+    }
+
+    function deleteNote(id) {
+      if (!confirm('Are you sure you want to delete this document?')) return;
+      state.notes = state.notes.filter((n) => n.id !== id);
+      if (state.selectedNoteId === id) {
+        state.selectedNoteId = state.notes.length > 0 ? state.notes[0].id : null;
+      }
+      saveState();
+      renderNotesPage();
+      showToast('Document Deleted', 'Note removed.');
+    }
+
+    function renderActiveNoteEditor() {
+      const container = document.getElementById('note-editor-container');
+      const note = state.notes.find((n) => n.id === state.selectedNoteId);
+
+      if (!note) {
+        container.innerHTML = `
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #64748b;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom: 1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <h4 style="font-size: 1.125rem; font-weight: 700; color: #0f172a;">No Document Selected</h4>
+            <p style="font-size: 0.8125rem; margin-top: 0.25rem;">Click "New Note" in the top right to start writing.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <!-- Note Toolbar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <input id="note-edit-title" oninput="saveCurrentNoteTitle(this.value)" type="text" value="${escapeHtml(note.title)}" style="font-size: 1.125rem; font-weight: 700; color: #0f172a; border: none; outline: none; background: transparent; flex: 1; min-width: 12rem;">
+          <div style="display: flex; align-items: center; gap: 0.25rem;">
+            <button onclick="formatNote('bold')" class="btn btn-sm btn-ghost" title="Bold"><strong>B</strong></button>
+            <button onclick="formatNote('italic')" class="btn btn-sm btn-ghost" title="Italic"><em>I</em></button>
+            <button onclick="formatNote('h1')" class="btn btn-sm btn-ghost" title="Heading 1">H1</button>
+            <button onclick="formatNote('h2')" class="btn btn-sm btn-ghost" title="Heading 2">H2</button>
+            <button onclick="formatNote('list')" class="btn btn-sm btn-ghost" title="Bullet List">• List</button>
+            <button onclick="downloadNoteMarkdown()" class="btn btn-sm btn-outline" style="font-size: 0.6875rem;">Download MD</button>
+          </div>
+        </div>
+
+        <!-- Note Canvas -->
+        <div id="note-canvas" contenteditable="true" oninput="saveCurrentNoteContent()" style="flex: 1; min-height: 400px; outline: none; font-size: 0.875rem; line-height: 1.7; color: #1e293b;">
+          ${note.content}
+        </div>
+      `;
+    }
+
+    function saveCurrentNoteTitle(val) {
+      const note = state.notes.find((n) => n.id === state.selectedNoteId);
+      if (note) {
+        note.title = val;
+        note.updatedAt = new Date().toISOString();
+        saveState();
+        renderNotesList();
+      }
+    }
+
+    function saveCurrentNoteContent() {
+      const canvas = document.getElementById('note-canvas');
+      const note = state.notes.find((n) => n.id === state.selectedNoteId);
+      if (note && canvas) {
+        note.content = canvas.innerHTML;
+        note.updatedAt = new Date().toISOString();
+        saveState();
+      }
+    }
+
+    function formatNote(command) {
+      if (command === 'bold') document.execCommand('bold', false, null);
+      else if (command === 'italic') document.execCommand('italic', false, null);
+      else if (command === 'h1') document.execCommand('formatBlock', false, '<h1>');
+      else if (command === 'h2') document.execCommand('formatBlock', false, '<h2>');
+      else if (command === 'list') document.execCommand('insertUnorderedList', false, null);
+      saveCurrentNoteContent();
+    }
+
+    function downloadNoteMarkdown() {
+      const note = state.notes.find((n) => n.id === state.selectedNoteId);
+      if (!note) return;
+      const text = note.content.replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
+        .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
+        .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
+        .replace(/<br\s*[\/]?>/gi, '\n')
+        .replace(/<[^>]*>?/gm, '');
+
+      const blob = new Blob([text], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${note.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 10. RENDER TAB 4: GUIDED WEEKLY REVIEW (1:1 WITH NEXT.JS)
+    function setReviewStep(step) {
+      state.reviewStep = step;
+      [1, 2, 3, 4].forEach((s) => {
+        const btn = document.getElementById(`review-step-btn-${s}`);
+        if (s === step) {
+          btn.className = 'btn btn-sm';
+          btn.style.background = '#eef2ff';
+          btn.style.color = '#4338ca';
+          btn.style.border = '1px solid #c7d2fe';
+          btn.style.fontWeight = '600';
+        } else {
+          btn.className = 'btn btn-sm btn-ghost';
+          btn.style.color = '#64748b';
+          btn.style.border = 'none';
+          btn.style.fontWeight = '500';
+        }
+      });
+      renderWeeklyReviewPage();
+    }
+
+    function renderWeeklyReviewPage() {
+      const today = getTodayStr();
+      const completed = state.tasks.filter((t) => t.status === 'completed');
+      const overdue = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate && t.dueDate < today);
+      const followUps = state.followUps.filter((f) => f.status === 'pending');
+
+      document.getElementById('review-step1-count').textContent = completed.length;
+      document.getElementById('review-step2-count').textContent = overdue.length;
+      document.getElementById('review-step3-count').textContent = followUps.length;
+
+      const content = document.getElementById('review-step-content');
+      const step = state.reviewStep;
+
+      if (step === 1) {
+        content.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 700; color: #059669;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>1. Celebrate & Review Completed Deliverables</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #64748b;">Here are all the items completed in your workspace. Acknowledge your team accomplishments before setting next week's targets.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+              ${completed.length === 0
+            ? `<p style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">No completed tasks in archive this cycle.</p>`
+            : completed.map((t) => renderTaskCardHtml(t)).join('')
+          }
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+              <button onclick="setReviewStep(2)" class="btn btn-primary btn-sm" style="background-color: #4f46e5; color: #ffffff;">Next Step: Overdue Triage ›</button>
+            </div>
+          </div>
+        `;
+      } else if (step === 2) {
+        content.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 700; color: #e11d48;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+              <span>2. Clean Incomplete & Overdue Tasks</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #64748b;">Overdue items create mental fatigue. Reschedule them to realistic dates or complete them.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+              ${overdue.length === 0
+            ? `<p style="font-size: 0.75rem; color: #059669; font-weight: 600;">✓ Clean slate! Zero overdue tasks.</p>`
+            : overdue.map((t) => `
+                  <div class="executive-card" style="padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <h4 style="font-size: 0.8125rem; font-weight: 600; color: #0f172a;">${escapeHtml(t.title)}</h4>
+                      <p style="font-size: 0.6875rem; color: #e11d48;">Overdue since: ${formatDisplayDate(t.dueDate)}</p>
+                    </div>
+                    <div style="display: flex; gap: 0.375rem;">
+                      <button onclick="rescheduleTask('${t.id}', '${today}')" class="btn btn-sm btn-outline">Due Today</button>
+                      <button onclick="rescheduleTask('${t.id}', '${addDays(7)}')" class="btn btn-sm btn-outline">Next Week</button>
+                      <button onclick="toggleTaskCompletion('${t.id}')" class="btn btn-sm btn-primary">Mark Done</button>
+                    </div>
+                  </div>
+                `).join('')
+          }
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+              <button onclick="setReviewStep(1)" class="btn btn-outline btn-sm">‹ Previous Step</button>
+              <button onclick="setReviewStep(3)" class="btn btn-primary btn-sm" style="background-color: #4f46e5; color: #ffffff;">Next Step: Follow-ups ›</button>
+            </div>
+          </div>
+        `;
+      } else if (step === 3) {
+        content.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 700; color: #d97706;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>3. Review Pending Follow-ups</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #64748b;">Verify pending replies, approvals, and commitments from colleagues.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+              ${followUps.length === 0
+            ? `<p style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">No pending follow-ups waiting on others.</p>`
+            : followUps.map((f) => `
+                  <div class="executive-card" style="padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <h4 style="font-size: 0.8125rem; font-weight: 600; color: #0f172a;">${escapeHtml(f.topic)}</h4>
+                      <p style="font-size: 0.6875rem; color: #64748b;">Colleague: <strong>${escapeHtml(f.person)}</strong></p>
+                    </div>
+                    <button onclick="resolveFollowUp('${f.id}')" class="btn btn-sm btn-outline" style="color: #059669;">Mark Resolved</button>
+                  </div>
+                `).join('')
+          }
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+              <button onclick="setReviewStep(2)" class="btn btn-outline btn-sm">‹ Previous Step</button>
+              <button onclick="setReviewStep(4)" class="btn btn-primary btn-sm" style="background-color: #4f46e5; color: #ffffff;">Next Step: Executive Summary ›</button>
+            </div>
+          </div>
+        `;
+      } else {
+        content.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 700; color: #4f46e5;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              <span>4. Executive Summary & Week Ahead</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #64748b;">Lock in your Big 3 strategic priorities for the upcoming cycle.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <input type="text" placeholder="Priority 1: Key strategic deliverable..." value="${escapeHtml(state.nextBig3[0] || '')}" oninput="state.nextBig3[0]=this.value; saveState();" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+              <input type="text" placeholder="Priority 2: Architecture or system milestone..." value="${escapeHtml(state.nextBig3[1] || '')}" oninput="state.nextBig3[1]=this.value; saveState();" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+              <input type="text" placeholder="Priority 3: Team, alignment, or hiring target..." value="${escapeHtml(state.nextBig3[2] || '')}" oninput="state.nextBig3[2]=this.value; saveState();" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+              <button onclick="setReviewStep(3)" class="btn btn-outline btn-sm">‹ Previous Step</button>
+              <button onclick="completeWeeklyReview()" class="btn btn-primary btn-sm" style="background-color: #10b981; color: #ffffff;">Complete Weekly Review ✓</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function rescheduleTask(id, newDate) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (task) {
+        task.dueDate = newDate;
+        saveState();
+        renderWeeklyReviewPage();
+        showToast('Task Rescheduled', `New due date: ${formatDisplayDate(newDate)}.`);
+      }
+    }
+
+    function completeWeeklyReview() {
+      showToast('Weekly Review Complete', 'Excellent work! Your priorities are primed.', 'success');
+      switchTab('my-day');
+    }
+
+    // 11. RENDER TAB 5: SETTINGS & BACKUP (1:1 WITH NEXT.JS)
+    function renderSettingsPage() {
+      document.getElementById('stat-settings-tasks').textContent = state.tasks.length;
+      document.getElementById('stat-settings-followups').textContent = state.followUps.length;
+      document.getElementById('stat-settings-notes').textContent = state.notes.length;
+
+      const raw = localStorage.getItem(STORAGE_KEY) || '';
+      const kb = Math.round((raw.length * 2) / 1024);
+      document.getElementById('stat-settings-size').textContent = `${kb} KB`;
+    }
+
+    function exportWorkspaceJson() {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute('href', dataStr);
+      a.setAttribute('download', `command-center-backup-${getTodayStr()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('Backup Exported', 'Full workspace JSON downloaded.');
+    }
+
+    function importWorkspaceJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.tasks) {
+            state = { ...state, ...imported };
+            saveState();
+            switchTab('my-day');
+            showToast('Backup Restored', 'Workspace data restored successfully!');
+          }
+        } catch (err) {
+          alert('Invalid JSON backup file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToDemoData() {
+      if (!confirm('Are you sure you want to clear all tasks, notes, and follow-ups? This will reset your workspace to a clean state.')) return;
+      state = getDefaultSeedData();
+      saveState();
+      switchTab('my-day');
+      showToast('Workspace Cleared', 'All data has been cleared for a fresh start.');
+    }
+
+    function requestAlertPermission() {
+      unlockAudio();
+      if ('Notification' in window) {
+        Notification.requestPermission().then((perm) => {
+          if (perm === 'granted') {
+            showToast('Notifications Active', 'Desktop notifications enabled.');
+            sendSystemNotification('Alerts Activated', {
+              body: 'System desktop alerts and sound chimes are now enabled.'
+            });
+          } else {
+            showToast('Permission Notice', 'Browser blocked desktop alerts. Web Audio chimes active.', 'info');
+            ringCurrentBell();
+          }
+        }).catch(() => {
+          ringCurrentBell();
+        });
+      } else {
+        ringCurrentBell();
+      }
+    }
+
+    // 12. TASK MODAL ACTIONS (CREATE, EDIT, COMPLETE, DELETE)
+    function toggleTaskCompletion(id) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (task) {
+        if (task.status === 'completed') {
+          task.status = 'not-started';
+          task.completedAt = undefined;
+          showToast('Task Reopened', 'Task marked incomplete.');
+        } else {
+          task.status = 'completed';
+          task.completedAt = new Date().toISOString();
+          showToast('Task Completed', 'Deliverable logged as complete! 🎯');
+          playSynthesizedBell('desk');
+        }
+        saveState();
+        if (state.activeTab === 'my-day') renderMyDayPage();
+        else if (state.activeTab === 'tasks') renderTasksPage();
+        else if (state.activeTab === 'weekly-review') renderWeeklyReviewPage();
+      }
+    }
+
+    function openQuickAddModal(defaults = {}) {
+      document.getElementById('quick-add-form').reset();
+      document.getElementById('qa-due-date').value = defaults.dueDate || getTodayStr();
+      document.getElementById('qa-priority').value = defaults.priority || 'medium';
+      document.getElementById('qa-subtasks-list').innerHTML = '';
+      quickAddSubtasks = [];
+
+      document.getElementById('quick-add-modal').classList.add('open');
+      setTimeout(() => document.getElementById('qa-title').focus(), 50);
+    }
+
+    function closeQuickAddModal() {
+      document.getElementById('quick-add-modal').classList.remove('open');
+    }
+
+    let quickAddSubtasks = [];
+    function addQuickSubtask() {
+      const input = document.getElementById('qa-subtask-input');
+      const val = input.value.trim();
+      if (!val) return;
+      quickAddSubtasks.push(val);
+      input.value = '';
+      renderQuickSubtasksList();
+    }
+
+    function renderQuickSubtasksList() {
+      const el = document.getElementById('qa-subtasks-list');
+      el.innerHTML = quickAddSubtasks.map((st, i) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #f8fafc; border-radius: 0.25rem;">
+          <span>${escapeHtml(st)}</span>
+          <button type="button" onclick="quickAddSubtasks.splice(${i}, 1); renderQuickSubtasksList();" style="border: none; background: none; color: #ef4444; cursor: pointer;">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleQuickAddAccordion() {
+      const content = document.getElementById('qa-accordion-content');
+      const arrow = document.getElementById('qa-accordion-arrow');
+      if (content.style.display === 'flex') {
+        content.style.display = 'none';
+        arrow.textContent = '›';
+      } else {
+        content.style.display = 'flex';
+        arrow.textContent = 'v';
+      }
+    }
+
+    function setQuickDate(type) {
+      const input = document.getElementById('qa-due-date');
+      if (type === 'today') input.value = getTodayStr();
+      else if (type === 'tomorrow') input.value = addDays(1);
+      else if (type === 'nextmon') {
+        const d = new Date();
+        d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+        input.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+      else if (type === 'in1wk') input.value = addDays(7);
+      else input.value = '';
+    }
+
+    function handleQuickAddSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('qa-title').value.trim();
+      if (!title) return;
+
+      const rawDueDate = document.getElementById('qa-due-date').value;
+      const rawDueTime = document.getElementById('qa-reminder-time').value;
+
+      // Default to today if reminder time is set but date was left empty
+      const dueDate = rawDueDate || (rawDueTime ? getTodayStr() : undefined);
+      const dueTime = rawDueTime || undefined;
+
+      const newTask = {
+        id: `task_${Date.now()}`,
+        title,
+        dueDate,
+        dueTime,
+        priority: document.getElementById('qa-priority').value,
+        status: 'not-started',
+        taskType: 'task',
+        personInvolved: document.getElementById('qa-person').value.trim() || undefined,
+        notes: document.getElementById('qa-notes').value.trim() || undefined,
+        links: document.getElementById('qa-link').value.trim() ? [{ id: `l_${Date.now()}`, title: 'Reference', url: document.getElementById('qa-link').value.trim() }] : [],
+        checklist: quickAddSubtasks.map((st, idx) => ({ id: `c_${Date.now()}_${idx}`, title: st, completed: false })),
+        tags: [],
+        createdAt: new Date().toISOString()
+      };
+
+      state.tasks.unshift(newTask);
+      saveState();
+      closeQuickAddModal();
+
+      if (dueTime) {
+        showToast('Reminder Scheduled', `Alert set for ${dueTime} (${dueDate === getTodayStr() ? 'Today' : formatDisplayDate(dueDate)}).`, 'info');
+      } else {
+        showToast('Task Created', 'Added to workspace.');
+      }
+
+      unlockAudio();
+      checkTaskReminders();
+
+      if (state.activeTab === 'my-day') renderMyDayPage();
+      else if (state.activeTab === 'tasks') renderTasksPage();
+    }
+
+    // Task Detail Modal
+    function openTaskDetailModal(id) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (!task) return;
+      state.activeTaskId = id;
+
+      document.getElementById('td-title').value = task.title;
+      document.getElementById('td-status').value = task.status;
+      document.getElementById('td-priority').value = task.priority;
+      document.getElementById('td-due-date').value = task.dueDate || '';
+      document.getElementById('td-due-time').value = task.dueTime || '';
+      document.getElementById('td-person').value = task.personInvolved || '';
+      document.getElementById('td-notes').value = task.notes || '';
+
+      renderDetailChecklist(task);
+      renderDetailLinks(task);
+
+      document.getElementById('task-detail-modal').classList.add('open');
+    }
+
+    function closeTaskDetailModal() {
+      document.getElementById('task-detail-modal').classList.remove('open');
+      state.activeTaskId = null;
+    }
+
+    function renderDetailChecklist(task) {
+      const el = document.getElementById('td-checklist-items');
+      const list = task.checklist || [];
+      const completedCount = list.filter((c) => c.completed).length;
+      document.getElementById('td-checklist-progress').textContent = `${completedCount}/${list.length}`;
+
+      el.innerHTML = list.map((item, idx) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.375rem 0.5rem; background: #f8fafc; border-radius: 0.375rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; flex: 1;">
+            <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleChecklistItem('${task.id}', ${idx})" style="accent-color: #4f46e5;">
+            <span style="text-decoration: ${item.completed ? 'line-through' : 'none'}; color: ${item.completed ? '#94a3b8' : '#0f172a'};">${escapeHtml(item.title)}</span>
+          </label>
+          <button onclick="removeChecklistItem('${task.id}', ${idx})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.125rem;">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleChecklistItem(taskId, idx) {
+      const task = state.tasks.find((t) => t.id === taskId);
+      if (task && task.checklist[idx]) {
+        task.checklist[idx].completed = !task.checklist[idx].completed;
+        saveState();
+        renderDetailChecklist(task);
+      }
+    }
+
+    function removeChecklistItem(taskId, idx) {
+      const task = state.tasks.find((t) => t.id === taskId);
+      if (task) {
+        task.checklist.splice(idx, 1);
+        saveState();
+        renderDetailChecklist(task);
+      }
+    }
+
+    function addDetailChecklist() {
+      const input = document.getElementById('td-new-checklist');
+      const val = input.value.trim();
+      if (!val) return;
+      const task = state.tasks.find((t) => t.id === state.activeTaskId);
+      if (task) {
+        if (!task.checklist) task.checklist = [];
+        task.checklist.push({ id: `c_${Date.now()}`, title: val, completed: false });
+        input.value = '';
+        saveState();
+        renderDetailChecklist(task);
+      }
+    }
+
+    function renderDetailLinks(task) {
+      const el = document.getElementById('td-links-list');
+      const links = task.links || [];
+      el.innerHTML = links.map((l, idx) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #f8fafc; border-radius: 0.25rem;">
+          <a href="${escapeHtml(l.url)}" target="_blank" style="color: #4f46e5; text-decoration: underline;">${escapeHtml(l.title || l.url)}</a>
+          <button onclick="removeDetailLink(${idx})" style="background: none; border: none; color: #ef4444; cursor: pointer;">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function addDetailLink() {
+      const titleInput = document.getElementById('td-link-title');
+      const urlInput = document.getElementById('td-link-url');
+      const url = urlInput.value.trim();
+      if (!url) return;
+      const task = state.tasks.find((t) => t.id === state.activeTaskId);
+      if (task) {
+        if (!task.links) task.links = [];
+        task.links.push({ id: `l_${Date.now()}`, title: titleInput.value.trim() || 'Link', url });
+        titleInput.value = '';
+        urlInput.value = '';
+        saveState();
+        renderDetailLinks(task);
+      }
+    }
+
+    function removeDetailLink(idx) {
+      const task = state.tasks.find((t) => t.id === state.activeTaskId);
+      if (task && task.links) {
+        task.links.splice(idx, 1);
+        saveState();
+        renderDetailLinks(task);
+      }
+    }
+
+    function saveTaskDetail() {
+      const task = state.tasks.find((t) => t.id === state.activeTaskId);
+      if (!task) return;
+
+      const rawDueDate = document.getElementById('td-due-date').value;
+      const rawDueTime = document.getElementById('td-due-time').value;
+
+      task.title = document.getElementById('td-title').value.trim() || task.title;
+      task.status = document.getElementById('td-status').value;
+      task.priority = document.getElementById('td-priority').value;
+      task.dueDate = rawDueDate || (rawDueTime ? getTodayStr() : undefined);
+      task.dueTime = rawDueTime || undefined;
+      task.personInvolved = document.getElementById('td-person').value.trim() || undefined;
+      task.notes = document.getElementById('td-notes').value.trim() || undefined;
+
+      if (task.status === 'completed' && !task.completedAt) {
+        task.completedAt = new Date().toISOString();
+      } else if (task.status !== 'completed') {
+        task.completedAt = undefined;
+      }
+
+      // Reset reminder key if dueTime was edited so it can trigger at the new time
+      const reminderKey = `rem_${task.id}_${task.dueDate}_${task.dueTime}`;
+      triggeredReminders.delete(reminderKey);
+
+      saveState();
+      closeTaskDetailModal();
+
+      if (task.dueTime) {
+        showToast('Reminder Updated', `Alert scheduled for ${task.dueTime}.`, 'info');
+      } else {
+        showToast('Changes Saved', 'Task updated.');
+      }
+
+      unlockAudio();
+      checkTaskReminders();
+
+      if (state.activeTab === 'my-day') renderMyDayPage();
+      else if (state.activeTab === 'tasks') renderTasksPage();
+    }
+
+    function deleteActiveTask() {
+      if (!confirm('Permanently delete this task?')) return;
+      state.tasks = state.tasks.filter((t) => t.id !== state.activeTaskId);
+      saveState();
+      closeTaskDetailModal();
+      showToast('Task Deleted', 'Removed from workspace.');
+
+      if (state.activeTab === 'my-day') renderMyDayPage();
+      else if (state.activeTab === 'tasks') renderTasksPage();
+    }
+
+    // Follow up helpers
+    function resolveFollowUp(id) {
+      state.followUps = state.followUps.filter((f) => f.id !== id);
+      saveState();
+      renderTasksPage();
+      renderMyDayPage();
+      showToast('Follow-up Resolved', 'Marked as completed.');
+    }
+
+    function deleteFollowUp(id) {
+      state.followUps = state.followUps.filter((f) => f.id !== id);
+      saveState();
+      renderTasksPage();
+    }
+
+    // 13. COMMAND PALETTE (⌘K)
+    function openCommandPalette() {
+      document.getElementById('command-palette-modal').classList.add('open');
+      const input = document.getElementById('cp-search-input');
+      input.value = '';
+      handleCommandPaletteSearch();
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeCommandPalette() {
+      document.getElementById('command-palette-modal').classList.remove('open');
+    }
+
+    function handleCommandPaletteSearch() {
+      const q = (document.getElementById('cp-search-input')?.value || '').toLowerCase();
+      const resultsEl = document.getElementById('cp-results-list');
+
+      let matches = [];
+      state.tasks.forEach((t) => {
+        if (!q || t.title.toLowerCase().includes(q) || (t.notes || '').toLowerCase().includes(q)) {
+          matches.push({ type: 'task', id: t.id, title: t.title, subtitle: `Task &bull; ${t.priority} &bull; ${t.status}` });
+        }
+      });
+      state.notes.forEach((n) => {
+        if (!q || n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)) {
+          matches.push({ type: 'note', id: n.id, title: n.title, subtitle: 'Document / Note' });
+        }
+      });
+      state.followUps.forEach((f) => {
+        if (!q || f.person.toLowerCase().includes(q) || f.topic.toLowerCase().includes(q)) {
+          matches.push({ type: 'followup', id: f.id, title: f.topic, subtitle: `Waiting on ${f.person}` });
+        }
+      });
+
+      if (matches.length === 0) {
+        resultsEl.innerHTML = `<div style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.75rem;">No results found</div>`;
+      } else {
+        resultsEl.innerHTML = matches.slice(0, 10).map((m) => `
+          <div onclick="selectCommandPaletteItem('${m.type}', '${m.id}')" style="padding: 0.5rem 0.75rem; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; hover:background: #f1f5f9;">
+            <div>
+              <div style="font-size: 0.8125rem; font-weight: 600; color: #0f172a;">${escapeHtml(m.title)}</div>
+              <p style="font-size: 0.6875rem; color: #64748b;">${m.subtitle}</p>
+            </div>
+            <span class="badge ${m.type === 'task' ? 'badge-indigo' : m.type === 'note' ? 'badge-slate' : 'badge-amber'}">${m.type}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function selectCommandPaletteItem(type, id) {
+      closeCommandPalette();
+      if (type === 'task') {
+        openTaskDetailModal(id);
+      } else if (type === 'note') {
+        switchTab('notes');
+        selectNote(id);
+      } else if (type === 'followup') {
+        switchTab('tasks');
+        setTaskSubTab('waiting');
+      }
+    }
+
+    // 14. END-OF-DAY REVIEW MODAL
+    function openEodReviewModal() {
+      const today = getTodayStr();
+      const unfinished = state.tasks.filter((t) => t.status !== 'completed' && t.dueDate === today);
+
+      const body = document.getElementById('eod-modal-body');
+      body.innerHTML = `
+        <div style="font-size: 0.8125rem; color: #334155;">
+          <p>You have <strong style="color: #4f46e5;">${unfinished.length} unfinished tasks</strong> scheduled for today.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto;">
+          ${unfinished.length === 0
+          ? `<div style="padding: 1rem; text-align: center; color: #059669; font-weight: 600;">✓ Everything for today has been completed!</div>`
+          : unfinished.map((t) => `
+              <div style="padding: 0.5rem 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #0f172a;">${escapeHtml(t.title)}</span>
+                <button onclick="rescheduleTask('${t.id}', '${addDays(1)}'); openEodReviewModal();" class="btn btn-sm btn-outline">Carry to Tomorrow</button>
+              </div>
+            `).join('')
+        }
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button onclick="closeEodReviewModal()" class="btn btn-primary btn-sm" style="background-color: #4f46e5; color: #ffffff;">Wrap Up & Close</button>
+        </div>
+      `;
+
+      document.getElementById('eod-modal').classList.add('open');
+    }
+
+    function closeEodReviewModal() {
+      document.getElementById('eod-modal').classList.remove('open');
+    }
+
+    // Overlay Close helper
+    function handleOverlayClick(e, modalId) {
+      if (e.target.id === modalId) {
+        document.getElementById(modalId).classList.remove('open');
+      }
+    }
+
+    // Keybindings: ⌘K for Command Palette, C for Quick Add, Esc for modals
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      } else if (e.key === 'c' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        openQuickAddModal();
+      } else if (e.key === 'Escape') {
+        ['quick-add-modal', 'task-detail-modal', 'command-palette-modal', 'eod-modal'].forEach((id) => {
+          document.getElementById(id).classList.remove('open');
+        });
+      }
+    });
+
+    // Escape HTML helper
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // INITIALIZATION
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      switchTab('my-day');
+
+      // Start background reminder scheduler (checks every 2 seconds)
+      checkTaskReminders();
+      setInterval(checkTaskReminders, 2000);
+    });
+  </script>
+</body>
+
+</html>
